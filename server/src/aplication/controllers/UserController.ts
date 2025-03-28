@@ -1,5 +1,5 @@
 import { UserPostDto } from '../dtos/User/UserPostDto';
-import { CreateUser } from '../useCases/CreateUser';
+import { CreateUser } from '../useCases/user/CreateUser';
 import { UserRepository } from './../../infrastructure/database/repositories/UserRepository';
 import { Request, Response } from 'express';
 
