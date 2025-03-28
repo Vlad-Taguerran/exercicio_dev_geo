@@ -9,24 +9,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserController = void 0;
-const UserPostDto_1 = require("../dtos/User/UserPostDto");
-const CreateUser_1 = require("../useCases/user/CreateUser");
-const UserRepository_1 = require("./../../infrastructure/database/repositories/UserRepository");
-class UserController {
-    constructor() {
-        this.userRepository = new UserRepository_1.UserRepository();
-        this.createUser = new CreateUser_1.CreateUser(this.userRepository);
+exports.CsvController = void 0;
+class CsvController {
+    constructor(ReadCsvUseCase) {
+        this.ReadCsvUseCase = ReadCsvUseCase;
     }
-    create(req, res) {
+    getCensu(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!req.body) {
-                throw new Error("Dados faltantes");
+            try {
+                const csv = yield this.ReadCsvUseCase.execute();
+                return res.json(csv);
             }
-            const { name, email, password } = req.body;
-            const userDto = new UserPostDto_1.UserPostDto(name, email, password);
-            const user = yield this.createUser.execute(userDto);
+            catch (error) {
+                return res.status(500).json({ error: "Erro ao processar CSV" });
+            }
         });
     }
 }
-exports.UserController = UserController;
+exports.CsvController = CsvController;

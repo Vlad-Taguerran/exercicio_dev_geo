@@ -8,25 +8,26 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserController = void 0;
-const UserPostDto_1 = require("../dtos/User/UserPostDto");
-const CreateUser_1 = require("../useCases/user/CreateUser");
-const UserRepository_1 = require("./../../infrastructure/database/repositories/UserRepository");
-class UserController {
-    constructor() {
-        this.userRepository = new UserRepository_1.UserRepository();
-        this.createUser = new CreateUser_1.CreateUser(this.userRepository);
-    }
-    create(req, res) {
+exports.CsvReader = void 0;
+const fs_1 = __importDefault(require("fs"));
+const csv_parse_1 = require("csv-parse");
+class CsvReader {
+    static readCsv(filePath, mapRow) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!req.body) {
-                throw new Error("Dados faltantes");
-            }
-            const { name, email, password } = req.body;
-            const userDto = new UserPostDto_1.UserPostDto(name, email, password);
-            const user = yield this.createUser.execute(userDto);
+            return new Promise((resolve, rejects) => {
+                const results = [];
+                fs_1.default.createReadStream(filePath).pipe((0, csv_parse_1.parse)({ delimiter: "\t", columns: true, trim: true }))
+                    .on("data", (row) => {
+                    results.push(mapRow(row));
+                })
+                    .on("end", () => resolve(results))
+                    .on("error", (err) => rejects(err.message));
+            });
         });
     }
 }
-exports.UserController = UserController;
+exports.CsvReader = CsvReader;

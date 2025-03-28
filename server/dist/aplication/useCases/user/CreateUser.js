@@ -9,24 +9,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserController = void 0;
-const UserPostDto_1 = require("../dtos/User/UserPostDto");
-const CreateUser_1 = require("../useCases/user/CreateUser");
-const UserRepository_1 = require("./../../infrastructure/database/repositories/UserRepository");
-class UserController {
-    constructor() {
-        this.userRepository = new UserRepository_1.UserRepository();
-        this.createUser = new CreateUser_1.CreateUser(this.userRepository);
+exports.CreateUser = void 0;
+const User_1 = require("../../../domain/entities/User");
+class CreateUser {
+    constructor(userRepository) {
+        this.userRepository = userRepository;
     }
-    create(req, res) {
+    execute(data) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!req.body) {
-                throw new Error("Dados faltantes");
+            const existingUser = yield this.userRepository.findByEmail(data.email);
+            if (existingUser) {
+                throw new Error("User already exists!");
             }
-            const { name, email, password } = req.body;
-            const userDto = new UserPostDto_1.UserPostDto(name, email, password);
-            const user = yield this.createUser.execute(userDto);
+            const user = new User_1.User('', data.name, data.email, data.password);
+            return this.userRepository.create(user);
         });
     }
 }
-exports.UserController = UserController;
+exports.CreateUser = CreateUser;

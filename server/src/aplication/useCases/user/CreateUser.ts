@@ -1,6 +1,6 @@
-import { User } from '../../domain/entities/User';
-import { UserPostDto } from '../dtos/User/UserPostDto';
-import { IUserRepository } from './../../domain/repositories/IUserRepository';
+import { User } from '../../../domain/entities/User';
+import { UserPostDto } from '../../dtos/User/UserPostDto';
+import { IUserRepository } from '../../../domain/repositories/IUserRepository';
 export class CreateUser{
   constructor(private  userRepository:IUserRepository){}
 

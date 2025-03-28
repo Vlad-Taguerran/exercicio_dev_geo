@@ -9,24 +9,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserController = void 0;
-const UserPostDto_1 = require("../dtos/User/UserPostDto");
-const CreateUser_1 = require("../useCases/user/CreateUser");
-const UserRepository_1 = require("./../../infrastructure/database/repositories/UserRepository");
-class UserController {
-    constructor() {
-        this.userRepository = new UserRepository_1.UserRepository();
-        this.createUser = new CreateUser_1.CreateUser(this.userRepository);
+exports.ReadCsvUseCase = void 0;
+const ReadData_service_1 = require("../../../infrastructure/services/ReadData.service");
+const CensusDataToDto_1 = require("../../dtos/csv/CensusDataToDto");
+class ReadCsvUseCase {
+    constructor(filePath) {
+        this.filePath = filePath;
     }
-    create(req, res) {
+    execute() {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!req.body) {
-                throw new Error("Dados faltantes");
-            }
-            const { name, email, password } = req.body;
-            const userDto = new UserPostDto_1.UserPostDto(name, email, password);
-            const user = yield this.createUser.execute(userDto);
+            const dtos = yield ReadData_service_1.CsvReader.readCsv(this.filePath, CensusDataToDto_1.CensusDataToDto.fromCsv);
+            return dtos.map((dto) => dto.toEntity());
         });
     }
 }
-exports.UserController = UserController;
+exports.ReadCsvUseCase = ReadCsvUseCase;
