@@ -17,14 +17,14 @@ export class CsvReader{
         batch.push(mapRow(row));
         lineCount++;
         if(batch.length == batchSize){
-          onBatchProcessed(batch); 
+          onBatchProcessed([...batch]); 
           batch = [];
         }
         
       })
       .on("end",()=> {
         if(batch.length > 0){
-          onBatchProcessed(batch); 
+          onBatchProcessed([...batch]);
         }
         onBatchProcessed([]);
       })
