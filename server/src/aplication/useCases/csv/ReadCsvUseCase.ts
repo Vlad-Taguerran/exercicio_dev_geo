@@ -19,7 +19,7 @@ export class ReadCsvUseCase{
    }
   private onBatchProcessed(batch: CensusDataToDto[]): void {
     if(batch.length == 0 ){
-      this.wsServer.close();
+     // this.wsServer.close();
     }
     this.wsServer.sendMessageToAll(JSON.stringify(batch));
 }
