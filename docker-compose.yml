@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:latest
+    container_name: db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: dev
+      MYSQL_DATABASE: dev_geo
+      MYSQL_USER: dev
+      MYSQL_PASSWORD: dev
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+  backend:
+    build: ./server
+    container_name: server
+    ports:
+      - "8000:8000"
+      - "8081:8081"
+    environment:
+      DB_HOST: db 
+      DB_PORT: 3306
+      DB_USER: dev
+      DB_PASS: dev
+      DB_NAME: dev_geo
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./server:/usr/src/app 
+      - /usr/src/app/node_modules 
+    command: yarn setup 
+
+  frontend:
+    build: ./dev_geo_front
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    environment:
+        NEXT_PUBLIC_API_URL: http://backend:8000/api/
+        NEXT_PUBLIC_API_WS: ws://backend:8081
+        NEXT_PUBLIC_API_SSE: http://backend:8000/event/address
+    depends_on:
+      - backend
+  
+    command: yarn start 
+volumes:
+  mysql_data:

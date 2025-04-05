@@ -1,30 +1,18 @@
 'use client'
 import { useEffect, useState, useRef, useCallback } from 'react';
-import mapboxgl, { Map, GeoJSONSource, LngLatLike, MapMouseEvent, GeoJSONFeature } from 'mapbox-gl';
+import { Map, GeoJSONSource } from 'mapbox-gl';
 import {mapBoxConfig} from '@/infra/config/mapBoxConfig';
 import { ICensusPoint } from '@/application/interfaces/ICensusPoint';
-import { GeoJsonProperties } from '@/types/GeoJsonProperties';
+import { useDrawereData } from '@/application/stores/DrawereData';
+import { ICensusPointDto } from '@/application/interfaces/ICensusPointDto';
+import { useMapActions } from '@/application/stores/MapActions.store';
+import useLayerInteraction from './hooks/useLayerInteraction';
+import { GeoJsonProperties } from 'geojson';
+import useMapClickHandler from './hooks/useMapClickHandler';
 
-const createPopupHtml = (properties: GeoJsonProperties): string => {
-  // Usa ?? 'N/A' para lidar com valores ausentes/nulos
- return `
-     <div style="font-family: sans-serif; font-size: 0.9em; max-width: 250px;">
-         <strong>Ponto Censitário</strong><br />
-         <hr style="margin: 2px 0;" />
-         🏠 Particulares: ${properties.censo_2022_domicilio_particular_poi_counts ?? 'N/A'}<br />
-         🏢 Coletivos: ${properties.censo_2022_domicilio_coletivo_poi_counts ?? 'N/A'}<br />
-         🏗️ Construção: ${properties.censo_2022_estabelecimento_construcao_poi_counts ?? 'N/A'}<br />
-         🏫 Ensino: ${properties.censo_2022_estabelecimento_ensino_poi_counts ?? 'N/A'}<br />
-         ⛪ Religioso: ${properties.censo_2022_estabelecimento_religioso_poi_counts ?? 'N/A'}<br />
-         🏥 Saúde: ${properties.censo_2022_estabelecimento_saude_poi_counts ?? 'N/A'}<br />
-         🌱 Agro: ${properties.censo_2022_estabelecimento_agro_poi_counts ?? 'N/A'}
-     </div>
- `;
-};
-
-// Helper para criar a estrutura GeoJSON
+// criar a estrutura GeoJSON 
 const createGeoJsonFeatureCollection = (data: ICensusPoint[]): GeoJSON.FeatureCollection<GeoJSON.Point, GeoJsonProperties> => {
- return {
+    return {
      type: 'FeatureCollection',
      features: data.map((point) => ({
          type: 'Feature',
@@ -32,261 +20,266 @@ const createGeoJsonFeatureCollection = (data: ICensusPoint[]): GeoJSON.FeatureCo
              type: 'Point',
              coordinates: [point.longitude, point.latitude],
          },
-         // Mapeia todas as propriedades exceto lat/lon
          properties: Object.keys(point)
              .filter(key => key !== 'longitude' && key !== 'latitude')
              .reduce((obj, key) => {
-                 obj[key as keyof GeoJsonProperties] = point[key];
+                 const value = point[key as keyof ICensusPoint];
+                 obj![key as keyof GeoJsonProperties] = typeof value === 'string' ? parseFloat(value) || 0 : (typeof value === 'number' ? value : 0);
                  return obj;
              }, {} as GeoJsonProperties),
      })),
  };
 };
 
+
 export function useMapDataProcessing(
-  mapRef: React.RefObject<Map | null>,
-  isMapLoaded: boolean,
-  censusData: ICensusPoint[],
-  isIconLoaded: boolean,
-) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [processedData, setProcessedData] = useState<ICensusPoint[]>([]);
-  const [batchIndex, setBatchIndex] = useState(0);
-  const listenersAttached = useRef(false);
-  const isProcessingComplete = useRef(false); // Para evitar reprocessamento desnecessário
-  const layerExists = useRef(false);
+    mapRef: React.RefObject<Map | null>,
+    isMapLoaded: boolean,
+    censusData: ICensusPoint[],
+    isIconLoaded: boolean
+  ) {
+    const [batchIndex, setBatchIndex] = useState(0);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [processedData, setProcessedData] = useState<ICensusPoint[]>([]);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [pinCount, setPinCount] = useState<number>(0);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [pinsInsidePolygon, setPinsInsidePolygon] = useState<ICensusPoint[]>([]);
 
-  // Função para adicionar/atualizar fonte e camada (memoizada)
-  const setupSourceAndLayer = useCallback((currentMap: Map, data: ICensusPoint[]) => {
-      const geoJsonData = createGeoJsonFeatureCollection(data);
-      const source = currentMap.getSource(mapBoxConfig.SOURCE_ID) as GeoJSONSource | undefined;
+    const { setSelectedPoint } = useDrawereData();
+    const { changeDrawereState } = useMapActions();
 
-      if (source) {
-          source.setData(geoJsonData);
-      } else {
-          try {
-               console.log(`➕ Adicionando fonte '${mapBoxConfig.SOURCE_ID}' e camada '${mapBoxConfig.LAYER_ID}'...`);
-               currentMap.addSource(mapBoxConfig.SOURCE_ID, { type: 'geojson', data: geoJsonData,cluster: true,
-                clusterRadius: 50,
-                clusterMaxZoom: 14 });
-               
-          } catch(error) {
-               console.error(`❌ Erro ao adicionar fonte/camada ${mapBoxConfig.SOURCE_ID}/${mapBoxConfig.LAYER_ID}:`, error)
-               // Se falhar, remover o que foi adicionado parcialmente
-                if (currentMap.getLayer(mapBoxConfig.LAYER_ID)) currentMap.removeLayer(mapBoxConfig.LAYER_ID);
-                if (currentMap.getSource(mapBoxConfig.SOURCE_ID)) currentMap.removeSource(mapBoxConfig.SOURCE_ID);
-                throw error; // Propaga o erro para interromper o processo
-          }
+    const isProcessingComplete = useRef(false);
+    // Use refs to track if layers/source exist to prevent duplicates
+    const sourceExists = useRef(false);
+    const clusterCircleLayerExists = useRef(false);
+    const clusterTextLayerExists = useRef(false);
+    const unclusteredLayerExists = useRef(false);
 
-      }
-      if (currentMap.getSource(mapBoxConfig.SOURCE_ID) && isIconLoaded && !layerExists.current) {
-        try {
-            console.log(`➕ Adicionando camada '${mapBoxConfig.LAYER_ID}' do tipo SYMBOL...`);
-            //camada nivel3
-            currentMap.addLayer({
-              id: 'cluster-count',
-              type: 'symbol',
-              source: mapBoxConfig.SOURCE_ID,
-              filter: ['has', 'point_count'],
-              layout: {
-                  'text-field': '{point_count_abbreviated}',
-                  'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-                  'text-size': 12,
-              },
-              paint: {
-                  'text-color': '#fff',
-              },
-          });
-            //camada nivel 2
-            currentMap.addLayer({
-              id: 'clusters',
-              type: 'circle',
-              source: mapBoxConfig.SOURCE_ID,
-              filter: ['has', 'point_count'],
-              paint: {
-                  'circle-color': [
-                      'step',
-                      ['get', 'point_count'],
-                      '#51bbd6',
-                      100,
-                      '#f1f075',
-                      750,
-                      '#f28cb1',
-                  ],
-                  'circle-radius': [
-                      'step',
-                      ['get', 'point_count'],
-                      20,
-                      100,
-                      30,
-                      750,
-                      40,
-                  ],
-              },
-          });
-            //camada nivel 1
-            currentMap.addLayer({
-                id: mapBoxConfig.LAYER_ID,
-                // --- ALTERAÇÃO PRINCIPAL AQUI ---
-                type: 'symbol', // <-- Muda para symbol
-                source: mapBoxConfig.SOURCE_ID,
-                layout: {
-                    'icon-image': mapBoxConfig.MARKER_ICON_ID, // <-- Usa o ID do ícone carregado
-                    'icon-size': 0.90, // <-- Ajuste o tamanho conforme necessário (ex: 0.5 = 50%)
-                    'icon-allow-overlap': false, // Permite sobreposição de ícones
-                    'icon-ignore-placement': true, // Força a exibição mesmo se houver colisões
-                    // 'icon-anchor': 'bottom', // Opcional: Ancora o ícone pela base (bom para pins)
-                },
-                // Removidas as propriedades 'paint' de círculo
-            });
-            layerExists.current = true; // Marca que a camada foi adicionada
-        } catch (error) {
-             console.error(`❌ Erro ao adicionar camada ${mapBoxConfig.LAYER_ID}:`, error)
-             // Não joga erro aqui para não parar o processamento de dados,
-             // mas os marcadores não aparecerão. Pode remover a fonte se preferir:
-             // if (currentMap.getSource(SOURCE_ID)) currentMap.removeSource(SOURCE_ID);
+
+    // Função para converter propriedades GeoJSON de volta para seu DTO (mantida)
+    const convertToICensusPoint = (properties: GeoJsonProperties, coordinates: [number, number]): ICensusPointDto => {
+         console.log("📌 Propriedades recebidas para conversão DTO:", properties);
+         console.log("📌 Coordenadas recebidas para conversão DTO:", coordinates);
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const dto: any = { 
+            latitude: coordinates[1],
+            longitude: coordinates[0],
+        };
+
+        // Tenta converter todas as propriedades para número, tratando null/undefined como 0
+        for (const key in properties) {
+            if (Object.prototype.hasOwnProperty.call(properties, key)) {
+                const value = properties[key as keyof GeoJsonProperties];
+                const numValue = Number(value);
+                dto[key] = isNaN(numValue) ? 0 : numValue; 
+                
+            }
         }
-    }
-  }, [isIconLoaded]); // Sem dependências, pois usa apenas constantes e argumentos
+        return dto as ICensusPointDto;
+    };
 
 
-
- 
-    // Função para adicionar listeners (memoizada)
-    const attachMapListeners = useCallback((currentMap: Map) => {
-      if (listenersAttached.current) return;
-       console.log(`👂 Adicionando listeners para a camada '${mapBoxConfig.LAYER_ID}'...`);
-
-      const handleMapClick = (e: MapMouseEvent & {features?: GeoJSONFeature[]  }) => {
-           if (!e.features || e.features.length === 0) return;
-           const feature = e.features[0];
-           if (feature.geometry.type !== 'Point' || !feature.properties) return;
-
-           const properties = feature.properties as GeoJsonProperties;
-
-           const coordinates = feature.geometry.coordinates.slice() as LngLatLike;
-
-           new mapboxgl.Popup({ closeButton: true, closeOnClick: true })
-               .setLngLat(coordinates)
-               .setHTML(createPopupHtml(properties))
-               .addTo(currentMap);
-       };
-
-       const handleMouseEnter = () => {
-          currentMap.getCanvas().style.cursor = 'pointer';
-       };
-
-       const handleMouseLeave = () => {
-           currentMap.getCanvas().style.cursor = '';
-       };
-
-      currentMap.on('click', mapBoxConfig.LAYER_ID, handleMapClick);
-      currentMap.on('mouseenter', mapBoxConfig.LAYER_ID, handleMouseEnter);
-      currentMap.on('mouseleave', mapBoxConfig.LAYER_ID, handleMouseLeave);
-
-      listenersAttached.current = true;
-
-      // Retorna função de limpeza para remover listeners específicos
-      return () => {
-          if (listenersAttached.current && currentMap.isStyleLoaded()) { // Checa se o mapa ainda existe
-               console.log(`👂 Removendo listeners da camada '${mapBoxConfig.LAYER_ID}'...`);
-               try {
-                  currentMap.off('click', mapBoxConfig.LAYER_ID, handleMapClick);
-                  currentMap.off('mouseenter', mapBoxConfig.LAYER_ID, handleMouseEnter);
-                  currentMap.off('mouseleave', mapBoxConfig.LAYER_ID, handleMouseLeave);
-                  listenersAttached.current = false;
-               } catch (error) {
-                   console.error(`❌ Erro ao remover listeners da camada ${mapBoxConfig.LAYER_ID}:`, error)
-               }
-
-          }
-      };
-  }, []); // Sem dependências
-
-
-    // Efeito para processar dados em lote
-    useEffect(() => {
-      const currentMap = mapRef.current;
-      // Condições para iniciar/continuar o processamento
-      if (!currentMap || !isMapLoaded || !isIconLoaded  || censusData.length === 0 || isProcessingComplete.current) {
-          return;
+ // *** FUNÇÃO PRINCIPAL REFEITA para adicionar fonte e camadas corretamente ***
+const setupSourceAndLayer = useCallback((currentMap: Map, data: ICensusPoint[]) => {
+    const geoJsonData = createGeoJsonFeatureCollection(data);
+    console.log(geoJsonData)
+    // --- FONTE (SOURCE) ---
+    const source = currentMap.getSource(mapBoxConfig.SOURCE_ID) as GeoJSONSource | undefined;
+    if (source) {
+      // Se a fonte já existe, apenas atualiza os dados
+      source.setData(geoJsonData);
+      console.log(`🔄 Fonte '${mapBoxConfig.SOURCE_ID}' atualizada.`);
+    } else if (!sourceExists.current) {
+      // Se a fonte não existe, cria ela com as cluster properties
+      try {
+        console.log(`➕ Adicionando fonte '${mapBoxConfig.SOURCE_ID}' com clustering...`);
+        currentMap.addSource(mapBoxConfig.SOURCE_ID, {
+          type: "geojson",
+          data: geoJsonData,
+          cluster: true,
+          clusterRadius: 50,
+          clusterMaxZoom: 14,
+          clusterProperties:{
+            "sum_particular": ["+", ["get", "censo_2022_domicilio_particular_poi_counts"]],
+            "sum_agro": ["+", ["get", "censo_2022_estabelecimento_agro_poi_counts"]],
+            "sum_construcao": ["+", ["get", "censo_2022_estabelecimento_construcao_poi_counts"]]
+          } // Zoom máximo onde os pontos ainda clusterizam
+          
+        });
+        sourceExists.current = true; // Marca que a fonte foi criada
+        console.log(`✅ Fonte '${mapBoxConfig.SOURCE_ID}' adicionada.`);
+      } catch (error) {
+        console.error(`❌ Erro ao adicionar fonte '${mapBoxConfig.SOURCE_ID}':`, error);
+        // Tentar limpar se algo deu errado na adição
+        if (currentMap.getSource(mapBoxConfig.SOURCE_ID)) currentMap.removeSource(mapBoxConfig.SOURCE_ID);
+        throw error; // Re-lança o erro para parar o processamento do lote
       }
+    }
+  
+    // --- CAMADAS (LAYERS) ---
+    // Só adiciona as camadas se a fonte existir e o ícone estiver carregado
+    if (sourceExists.current && isIconLoaded) {
+  
+      // 1. Camada de CÍRCULO para Clusters
+      if (!clusterCircleLayerExists.current && !currentMap.getLayer("clusters-circle")) {
+        try {
+          console.log("➕ Adicionando camada 'clusters-circle'...");
+          currentMap.addLayer({
+            id: "clusters-circle", 
+            type: "circle",
+            source: mapBoxConfig.SOURCE_ID, 
+            filter: ["has", "point_count"], 
 
-      console.log('⏳ Iniciando/Continuando processamento de lotes...');
-      let removeListeners: (() => void) | undefined; // Para guardar a função de limpeza dos listeners
-
-      const intervalId = setInterval(() => {
-          const start = batchIndex * mapBoxConfig.BATCH_SIZE;
-          if (start >= censusData.length) {
-              console.log('✅ Processamento de lotes concluído!');
-              clearInterval(intervalId);
-              isProcessingComplete.current = true; // Marca como concluído
-              return;
+            paint: {
+              // Estilo baseado na contagem de pontos no cluster
+              "circle-color": ["step", ["get", "point_count"], "#51bbd6", 100, "#f1f075", 750, "#f1465d"],
+              "circle-radius": ["step", ["get", "point_count"], 20, 100, 30, 750, 40],
+            },
+          });
+          clusterCircleLayerExists.current = true; // Marca que a camada foi criada
+          console.log("✅ Camada 'clusters-circle' adicionada.");
+        } catch (error) {
+          console.error("❌ Erro ao adicionar camada 'clusters-circle':", error);
+        }
+      }
+  
+      // 2. Camada de TEXTO (MÉDIA) para Clusters
+      if (!clusterTextLayerExists.current && !currentMap.getLayer("cluster-average-text")) {
+        try {
+          console.log("➕ Adicionando camada 'cluster-average-text'...");
+          currentMap.addLayer({
+            id: "cluster-count-text", // Melhor nome para refletir o que está sendo exibido
+            type: "symbol",
+            source: mapBoxConfig.SOURCE_ID,
+            filter: ["has", "point_count"], // Filtra apenas os clusters
+            layout: {
+                "text-field": ["concat", "Total: ", ["to-string", ["get", "sum_particular"]]],
+                "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
+                "text-size": 10
+            },
+            paint: {
+                "text-color": "#fff8f8"
+            }
+          });
+          clusterTextLayerExists.current = true; // Marca que a camada foi criada
+          console.log("✅ Camada 'cluster-average-text' adicionada.");
+        } catch (error) {
+          console.error("❌ Erro ao adicionar camada 'cluster-average-text':", error);
+        }
+      }
+  
+      // 3. Camada de ÍCONES para Pontos INDIVIDUAIS (Não Clusterizados)
+      // Use o ID que você definiu em mapBoxConfig.LAYER_ID
+      if (!unclusteredLayerExists.current && !currentMap.getLayer(mapBoxConfig.LAYER_ID)) {
+        try {
+          console.log(`➕ Adicionando camada '${mapBoxConfig.LAYER_ID}' para pontos individuais...`);
+          currentMap.addLayer({
+            id: mapBoxConfig.LAYER_ID, // ID para pontos individuais (talvez renomear para algo como "unclustered-points" ?)
+            type: "symbol",
+            source: mapBoxConfig.SOURCE_ID, // Referencia a fonte correta
+            filter: ['!', ['has', 'point_count']], // Filtro CORRETO: Mostra apenas pontos que NÃO são clusters
+            layout: {
+              "icon-image": mapBoxConfig.MARKER_ICON_ID, // ID do ícone carregado
+              "icon-size": 0.5,
+              "icon-allow-overlap": false, // Geralmente false para evitar sobreposição de ícones
+              "icon-ignore-placement": false, // Geralmente false para evitar sobreposição de ícones
+              "icon-anchor": "bottom",
+            },
+          });
+          unclusteredLayerExists.current = true; // Marca que a camada foi criada
+          console.log(`✅ Camada '${mapBoxConfig.LAYER_ID}' adicionada.`);
+        } catch (error) {
+          console.error(`❌ Erro ao adicionar camada '${mapBoxConfig.LAYER_ID}':`, error);
+        }
+      }
+    }
+  }, [isIconLoaded]); // Depende apenas de isIconLoaded para lógica de adição de camadas
+  
+  // Hooks de interação e mouse (mantidos como estavam)
+  useLayerInteraction(setSelectedPoint, convertToICensusPoint, changeDrawereState);
+ 
+  useMapClickHandler() // Assumindo que este hook adiciona seus próprios listeners
+  
+  // Efeito para processar dados em lotes (mantido como estava, mas chama setupSourceAndLayer)
+  useEffect(() => {
+    if (!mapRef.current || !isMapLoaded || !isIconLoaded || censusData.length === 0 || isProcessingComplete.current) return;
+  
+    console.log("⏳ Iniciando processamento de lotes...");
+    const intervalId = setInterval(() => {
+      const start = batchIndex * mapBoxConfig.BATCH_SIZE;
+      if (start >= censusData.length) {
+        console.log("✅ Processamento de lotes concluído!");
+        clearInterval(intervalId);
+        isProcessingComplete.current = true;
+        return;
+      }
+  
+      const end = Math.min(start + mapBoxConfig.BATCH_SIZE, censusData.length);
+      const newBatch = censusData.slice(start, end);
+  
+      if (newBatch.length > 0) {
+        setProcessedData((prev) => {
+          const updatedData = [...prev, ...newBatch];
+          try {
+            if (mapRef.current?.isStyleLoaded() && mapRef.current.isSourceLoaded(mapBoxConfig.SOURCE_ID)) { // Adicionado isSourceLoaded check
+              setupSourceAndLayer(mapRef.current, updatedData);
+            } else if (mapRef.current?.isStyleLoaded() && !sourceExists.current) {
+              setupSourceAndLayer(mapRef.current, updatedData);
+            }
+          } catch (error) {
+            console.error("❌ Erro durante setupSourceAndLayer no processamento do lote:", error);
+            clearInterval(intervalId); // Para o processamento em caso de erro grave
           }
-
-          const end = Math.min(start + mapBoxConfig.BATCH_SIZE, censusData.length);
-          const newBatch = censusData.slice(start, end);
-
-          if (newBatch.length > 0) {
-              setProcessedData((prev) => {
-                  const updatedData = [...prev, ...newBatch];
-                   try {
-                       if(currentMap.isStyleLoaded()) { // Garante que o estilo ainda está carregado
-                           setupSourceAndLayer(currentMap, updatedData);
-                           // Adiciona listeners APENAS UMA VEZ após a camada ser criada
-                          if (layerExists.current && !listenersAttached.current) {
-                              removeListeners = attachMapListeners(currentMap);
-                          }
-                       } else {
-                          console.warn("⚠️ Estilo do mapa descarregado durante o processamento do lote.")
-                          //clearInterval(intervalId); // Interrompe se o mapa foi removido
-                       }
-
-                   } catch(error) {
-                       console.error("❌ Erro ao processar lote:", error)
-                       clearInterval(intervalId); // Interrompe em caso de erro grave
-                   }
-                  return updatedData;
-              });
-              setBatchIndex((prev) => prev + 1);
-          }
-      }, mapBoxConfig.BATCH_INTERVAL_MS);
-
-      // Função de limpeza para o intervalo e listeners
-      return () => {
-           console.log("🧹 Limpando intervalo e listeners de lote...");
-           clearInterval(intervalId);
-           // Remove listeners se eles foram adicionados por este efeito
-          if(removeListeners) {
-               removeListeners();
-          }
-      };
-  }, [mapRef, isMapLoaded, censusData, batchIndex, setupSourceAndLayer, attachMapListeners, isIconLoaded]);
-    // Efeito para limpar camada e fonte quando o componente desmontar ou dados zerarem
-    useEffect(() => {
-      const currentMap = mapRef.current;
-      // Função de limpeza principal para remover camada/fonte
-      return () => {
-        layerExists.current = false;
-             isProcessingComplete.current = false;
-             setBatchIndex(0);
-             setProcessedData([]);
-
-          if (currentMap && currentMap.isStyleLoaded()) {
-               console.log(`🧹 Removendo camada '${mapBoxConfig.LAYER_ID}' e fonte '${mapBoxConfig.SOURCE_ID}'...`);
-               try {
-                  if (currentMap.getLayer(mapBoxConfig.LAYER_ID)) currentMap.removeLayer(mapBoxConfig.LAYER_ID);
-                  if (currentMap.getSource(mapBoxConfig.SOURCE_ID)) currentMap.removeSource(mapBoxConfig.SOURCE_ID);
-               } catch(error) {
-                   console.error("❌ Erro ao remover camada/fonte:", error);
-               }
-
-          }
-           // Resetar estado ao desmontar ou zerar dados
-           isProcessingComplete.current = false;
-           setBatchIndex(0);
-           setProcessedData([]);
-      };
-  }, [mapRef]); //
+          return updatedData;
+        });
+        setBatchIndex((prev) => prev + 1);
+      } else {
+        console.warn("⚠️ Lote vazio encontrado antes do fim dos dados.");
+        clearInterval(intervalId);
+        isProcessingComplete.current = true;
+      }
+    }, mapBoxConfig.BATCH_INTERVAL_MS);
+  
+    return () => {
+      console.log("🧹 Limpando intervalo de processamento de lotes...");
+      clearInterval(intervalId);
+    };
+  }, [mapRef, isMapLoaded, censusData, batchIndex, setupSourceAndLayer, isIconLoaded]); // Adicionado isIconLoaded como dependência
+  
+  // Efeito para limpar camadas e fonte ao desmontar ou quando dependências mudam
+  useEffect(() => {
+    return () => {
+      console.log("🧹 Limpando camadas e fonte ao desmontar...");
+      // Reseta os flags de existência
+      sourceExists.current = false;
+      clusterCircleLayerExists.current = false;
+      clusterTextLayerExists.current = false;
+      unclusteredLayerExists.current = false;
+      isProcessingComplete.current = false; // Reseta o status de processamento
+      setBatchIndex(0); // Reseta o índice do lote
+      setProcessedData([]); // Limpa os dados processados
+  
+      if (mapRef.current?.isStyleLoaded()) {
+        const map = mapRef.current;
+        // Remove camadas na ordem inversa (texto, círculo, pontos individuais)
+        try { if (map.getLayer("cluster-average-text")) map.removeLayer("cluster-average-text"); } catch (e) { console.warn("Warn: Erro ao remover cluster-average-text", e); }
+        try { if (map.getLayer("clusters-circle")) map.removeLayer("clusters-circle"); } catch (e) { console.warn("Warn: Erro ao remover clusters-circle", e); }
+        try { if (map.getLayer(mapBoxConfig.LAYER_ID)) map.removeLayer(mapBoxConfig.LAYER_ID); } catch (e) { console.warn(`Warn: Erro ao remover ${mapBoxConfig.LAYER_ID}`, e); }
+        // Remove a fonte por último
+        try { if (map.getSource(mapBoxConfig.SOURCE_ID)) map.removeSource(mapBoxConfig.SOURCE_ID); } catch (e) { console.warn(`Warn: Erro ao remover ${mapBoxConfig.SOURCE_ID}`, e); }
+        console.log("✅ Camadas e fonte removidas.");
+      } else {
+        console.log("ℹ️ Mapa não carregado ou estilo não pronto, limpeza de camadas/fonte pulada.");
+      }
+    };
+    // A dependência mapRef aqui garante limpeza se o próprio ref do mapa mudar (raro)
+    // A ausência de outras dependências como censusData aqui é intencional para
+    // que a limpeza ocorra *apenas* na desmontagem do componente que usa o hook.
+    // Se você precisar que a limpeza ocorra quando censusData muda, adicione-o aqui,
+    // mas isso pode causar piscadas no mapa se não for bem gerenciado.
+  }, [mapRef]);
+  
 
 }

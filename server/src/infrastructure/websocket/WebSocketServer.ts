@@ -1,5 +1,5 @@
 import * as WebSocket from 'ws';
-import { WebSocketInterface } from '../../aplication/interfaces/WebSocket';
+import { WebSocketInterface } from '../../application/interfaces/WebSocket';
 
 export class WebSocketServer implements WebSocketInterface {
   private wss!: WebSocket.Server;
