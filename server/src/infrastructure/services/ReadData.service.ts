@@ -1,18 +1,21 @@
 import fs from 'fs';
 import {parse} from 'csv-parse'
+import { FILES_DIRECTORY } from '../config/FilesConfigure';
+import path from 'path';
 
 
 export class CsvReader{
 
-  static async  readCsv<T>(filePath: string, mapRow: (row: any)=> any,onBatchProcessed: (batch: T[]) => void, batchSize: number = 100 ) : Promise<T[]>{
-    const delimiter = await this.detectTypeSeparator(filePath)
+  static async  readCsv<T>(_filePath: string, mapRow: (row: any)=> any,onBatchProcessed: (batch: T[]) => void, batchSize: number = 100 ) : Promise<T[]>{
+     const filepath = path.join(FILES_DIRECTORY,_filePath)
+    const delimiter = await this.detectTypeSeparator(filepath)
     let batch: any[] = [];
     let lineCount = 0;
 
     return new Promise((resolve, rejects)=>{
       
 
-      fs.createReadStream(filePath).pipe(parse({delimiter: delimiter, columns: true, trim: true}))
+      fs.createReadStream(filepath).pipe(parse({delimiter: delimiter, columns: true, trim: true}))
       .on("data",(row)=>{
         batch.push(mapRow(row));
         lineCount++;

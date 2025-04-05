@@ -3,12 +3,12 @@ import { useEffect } from "react";
 import  {WebSocketClient} from "./webSocket/WebSocketClient";
 
 
-export function useWebSocket<T>(url: string, callback: (data: T) => void) {
+export function useWebSocket<T>(callback: (data: T) => void) {
   useEffect(() => {
-    const client = new WebSocketClient<T>(url);
+    const client = new WebSocketClient<T>();
     client.onMessage(callback);
     client.connect();
 
     return () => console.log("WebSocket desconectado.");
-  }, [url, callback]);
+  }, [callback]);
 }

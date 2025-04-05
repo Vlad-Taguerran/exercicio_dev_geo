@@ -2,15 +2,12 @@ import { IWebSocketClient } from "@/application/interfaces/IWebSocketClient";
 
 export class WebSocketClient<T> implements IWebSocketClient {
   private socket: WebSocket | null = null;
-  private url: string;
   private messageCallback: ((data: T) => void) | null = null;
   
-  constructor(url: string) {
-    this.url = url;
-  }
+ 
  
   connect(): void {
-    this.socket = new WebSocket(this.url);
+    this.socket = new WebSocket(`${process.env.NEXT_PUBLIC_API_WS}`);
 
     this.socket.onopen = () => {
       console.log("WebSocket conectado");
@@ -19,7 +16,7 @@ export class WebSocketClient<T> implements IWebSocketClient {
    this.socket.onmessage = (event) => {
     try {
       const data = JSON.parse(event.data) as T; 
-      console.log("DADOS CHEGANDO:: " +data)
+      
       if (this.messageCallback) {
         this.messageCallback(data);
       }

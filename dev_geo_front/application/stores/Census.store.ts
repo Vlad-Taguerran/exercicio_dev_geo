@@ -11,6 +11,6 @@ type action = {
 export const useCensuStore = create<state & action>((set)=>({
   censusCsv: [],
   setData: (data)=> set((state)=>({
-    censusCsv: [...state.censusCsv, ...data.flat()]
+    censusCsv: [...state.censusCsv, ...data]
   }))
 }))

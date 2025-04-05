@@ -1,0 +1,26 @@
+{
+  "development": {
+    "username": "root",
+    "password": "dev",
+    "database": "dev_geo",
+    "host": "db",
+    "dialect": "mysql",
+    "models": ["./src/infrastructure/database/models"]
+  },
+  "test": {
+    "username": "root",
+    "password": "dev",
+    "database": "dev_geo",
+    "host": "db",
+    "dialect": "mysql",
+    "models": ["./src/infrastructure/database/models"]
+  },
+  "production": {
+    "username": "root",
+    "password": "dev",
+    "database": "dev_geo",
+    "host": "db",
+    "dialect": "mysql",
+    "models": ["./src/infrastructure/database/models"]
+  }
+}
