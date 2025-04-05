@@ -11,8 +11,10 @@
     "resolveJsonModule": true,    
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,    
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "types": ["jest"]
   },
-  "include": ["src"],                  
+  
+  "include": ["src", "src/__tests__/**/*.ts"],                  
   "exclude": ["node_modules"]         
 }

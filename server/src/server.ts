@@ -9,6 +9,7 @@ import addressRoute from "./infrastructure/http/routes/address.routes";
 import sseRouter from "./infrastructure/http/routes/sse.routes";
 import cors from 'cors';
 import fileRoutes from "./infrastructure/http/routes/file.routes";
+import { errorHandler } from "./infrastructure/middlewares/errorHandler";
 
 const filePath = "../files"
 const app =  Express();
@@ -23,7 +24,7 @@ app.use("/api",addressRoute);
 app.use('/api',authRoute);
 app.use('/api', fileRoutes(wss));
  
-
+app.use(errorHandler);
 app._router.stack.forEach((middleware: any) => {
   if (middleware.route) {
     console.log(`Rota carregada: ${middleware.route.path}`);
