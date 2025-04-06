@@ -1,8 +1,10 @@
-import { AddressPostDto } from "../../application/dtos/address/AddressPostDto";
-import { Address } from "../entities/Address";
-import { User } from "../entities/User";
+import { promises } from 'dns';
+import { Address } from './../entities/Address';
+
 
 export interface IAddressRepository{
-  create(address: AddressPostDto, user:User) :Promise<Address>
-  findAllByUserId(userId:string): Promise<Address[]>
+  create(address: Address) :Promise<Address>;
+  update(toUpdate:Address): Promise<Address>;
+  findAllByUserId(userId:string): Promise<Address[]>;
+  findById(addressId: string ): Promise<Address | null>;
 } 

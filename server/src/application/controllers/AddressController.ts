@@ -5,6 +5,8 @@ import { AddressMapper } from '../mappers/AddressMapper';
 import { IAddressRepository } from '../../domain/repositories/IAddressRepository';
 import { IUserRepository } from '../../domain/repositories/IUserRepository';
 import { FindAllAddressByUserIdUseCase } from "../useCases/address/FindAllAddressByUserIdUseCase";
+import { Address } from "../../domain/entities/Address";
+import { sseController } from "../../infrastructure/controller/SSEController";
 
 export class AddressController{
  
@@ -22,12 +24,16 @@ export class AddressController{
   async create(req: Request, res: Response ){
     try {
       const {userId} =  req.params;
-      const {address, house_number, city, state, postcode, long, lat} = req.body
-      const dto =new AddressPostDto(address, house_number, city, state, postcode, long, lat)
-      await this.createAddresUseCase.execute(dto,userId);
+      const {address, house_number, city, state, postcode, long, lat} = req.body;
+
+      const toSave = new Address(address, house_number, city, state, postcode, long, lat);
+      toSave.assignToUser(userId);
+      const  saved = await this.createAddresUseCase.execute(toSave);
+      
+      sseController.notify(AddressMapper.toGetDto(saved));
       return res.status(201).send();
     } catch (error) {
-      return res.status(500).json({ error: "Erro ao processar CSV" });
+      return res.status(500).json({ error: "Erro No Servidor" });
     }
   }
 

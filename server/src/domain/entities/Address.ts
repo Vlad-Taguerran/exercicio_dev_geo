@@ -1,3 +1,6 @@
+import { UpdateAddressDTO } from "../../application/dtos/address/UpdateAddressDTO";
+import { ConflictError } from "../../application/erros/ConflictError";
+
 export class Address {
   constructor(
     private readonly id: string,
@@ -6,11 +9,16 @@ export class Address {
     private city: string | undefined,
     private state: string | undefined,
     private postcode: string | undefined,
-    private location: { latitude: number; longitude: number }
+    private location: { latitude: number; longitude: number },
+    private userId?: string,
+    private notes?: string
   ) {}
 
   getId(): string {
     return this.id;
+  }
+  getUserId(): string | undefined{
+    return this.userId;
   }
 
   getHouseNumber(): string | undefined {
@@ -36,4 +44,25 @@ export class Address {
   getLocation(): { latitude: number; longitude: number } {
     return this.location;
   }
+
+  assignToUser(userId: string) {
+    if(userId =='' || userId == undefined){
+      throw new ConflictError("userId is Empity")
+    }
+    this.userId = userId;
+  }
+
+  updatePartial(data: UpdateAddressDTO) {
+    if (data.house_number !== undefined) this.house_number = data.house_number;
+    if (data.address !== undefined) this.address = data.address;
+    if (data.city !== undefined) this.city = data.city;
+    if (data.state !== undefined) this.state = data.state;
+    if (data.postcode !== undefined) this.postcode = data.postcode;
+    if (data.location !== undefined) this.location = data.location;
+  }
+  
+  getNotes(){
+    return this.notes;
+  }
+  
 }

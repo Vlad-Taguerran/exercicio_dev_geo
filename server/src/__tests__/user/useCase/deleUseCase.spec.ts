@@ -37,10 +37,10 @@ describe("Delet UseCase",()=>{
   }),
 
 
-  it('Should not update user if not found by id', async () => {
-  mockRepository.delete = jest.fn().mockResolvedValue(false);
-  const deleteUseCase = new DeleteUseCase(mockRepository);
-
+  it('Should not delete user if not found by id', async () => {
+    mockRepository.delete = jest.fn().mockResolvedValue(false);
+    const deleteUseCase = new DeleteUseCase(mockRepository); 
+  
     await expect(deleteUseCase.execute(v4()))
       .rejects
       .toBeInstanceOf(NotFoundError);

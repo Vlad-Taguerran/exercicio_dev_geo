@@ -15,7 +15,7 @@ export class AddressModel extends Model<InferAttributes<AddressModel>, AddressMo
   userId!: string;
 
   @BelongsTo(() => UserModel)
-  user!: UserModel;
+  user?: UserModel;
 
   @Column({ type: DataType.STRING, allowNull: true })
   address?: string;
@@ -31,6 +31,10 @@ export class AddressModel extends Model<InferAttributes<AddressModel>, AddressMo
 
   @Column({ type: DataType.STRING, allowNull: true })
   postcode?: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  notes?: string;
+
 
   @Column({ type: DataType.GEOMETRY('POINT'), allowNull: false })
   location!:  { type: string; coordinates: [number, number] };
