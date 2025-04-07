@@ -83,5 +83,9 @@ O contêiner do MySQL já está configurado para criar o banco de dados dev_geo 
 
 docker exec -it server bash
 
+## Acesso ao aplicativo
+# User: teste1@tester.com
+# Senha: senha123
+
 ## Test
 Para a execução dos testes unitarios acesse a pasta server e digite ***yarn test***;
