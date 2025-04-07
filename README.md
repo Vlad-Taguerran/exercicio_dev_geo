@@ -82,3 +82,6 @@ Senha: dev
 O contêiner do MySQL já está configurado para criar o banco de dados dev_geo automaticamente. Caso precise de algum dado específico ou realizar migrações, acesse o contêiner do backend:
 
 docker exec -it server bash
+
+## Test
+Para a execução dos testes unitarios acesse a pasta server e digite ***yarn test***;
