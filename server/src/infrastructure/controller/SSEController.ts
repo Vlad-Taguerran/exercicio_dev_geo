@@ -1,4 +1,5 @@
 import { Response } from 'express';
+import { logInfo } from '../config/logHelpers';
 
 class SSEController {
   private clients: Response[] = [];
@@ -16,6 +17,7 @@ class SSEController {
   }
 
   public notify(event: object): void {
+    logInfo(`${event} Event`,)
     const message = `data: ${JSON.stringify(event)}\n\n`;
     this.clients.forEach(client => client.write(message));
   }

@@ -8,69 +8,88 @@ import { UpdateAddressUseCase } from "../../application/useCases/address/UpdateA
 import { UnauthorizedError } from "../../application/erros/UnauthorizedError";
 
 
-describe("Update Address UseCase", () => {
-  let addressRepo: jest.Mocked<IAddressRepository>;
-  let userRepo: jest.Mocked<IUserRepository>;
-  let useCase: UpdateAddressUseCase;
-  let user: User;
-  let address: Address;
+describe("UpdateAddressUseCase", () => {
+  const mockAddressRepository = {
+    findById: jest.fn(),
+    update: jest.fn()
+  } as unknown as IAddressRepository;
 
-  const userId = v4();
-  const addressId = v4();
+  const mockUserRepository = {
+    findById: jest.fn()
+  } as unknown as IUserRepository;
 
-  const location = { latitude: 10, longitude: 10 };
+  const useCase = new UpdateAddressUseCase(mockAddressRepository, mockUserRepository);
+
+  const mockAddressEntity = new Address(
+    "address-id",
+    "123",
+    "Rua 1",
+    "Cidade",
+    "Estado",
+    "12345678",
+    { latitude: 0, longitude: 0 },
+    "user-id"
+  );
+
+  const mockUser = { id: "user-id" };
+
+  const updateData = {
+    id: "address-id",
+    userId: "user-id",
+    house_number: "456",
+    address: "Rua 2",
+    city: "Nova Cidade",
+    state: "Novo Estado",
+    postcode: "87654321"
+  };
 
   beforeEach(() => {
-    user = new User(userId, "User", "user@test.com", "123456");
-    address = new Address(addressId, "123", "Rua A", "Cidade", "Estado", "00000000", location, userId,);
-
-    addressRepo = {
-      findById: jest.fn(),
-      update: jest.fn(),
-      create: jest.fn(),
-      findAllByUserId: jest.fn(),
-    };
-
-    userRepo = {
-      findById: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-      findByEmail: jest.fn(),
-    };
-
-    useCase = new UpdateAddressUseCase(addressRepo, userRepo);
+    jest.clearAllMocks();
   });
 
-  it("should update the address successfully", async () => {
-    addressRepo.findById.mockResolvedValue(address);
-    userRepo.findById.mockResolvedValue(user);
+  it("deve atualizar o endereço com sucesso", async () => {
+    mockAddressRepository.findById = jest.fn().mockResolvedValue(mockAddressEntity);
+    mockUserRepository.findById = jest.fn().mockResolvedValue(mockUser);
+    mockAddressRepository.update = jest.fn().mockResolvedValue(mockAddressEntity);
 
-    await useCase.execute(address);
+    const result = await useCase.execute(updateData);
 
-    expect(addressRepo.update).toHaveBeenCalledWith(address);
+    expect(mockAddressRepository.findById).toHaveBeenCalledWith("address-id");
+    expect(mockUserRepository.findById).toHaveBeenCalledWith("user-id");
+    expect(mockAddressRepository.update).toHaveBeenCalledWith(expect.any(Address));
+    expect(result).toBe(mockAddressEntity);
   });
 
-  it("should throw error if user not found", async () => {
-    addressRepo.findById.mockResolvedValue(address);
-    userRepo.findById.mockResolvedValue(null);
+  it("deve lançar erro se o endereço não for encontrado", async () => {
+    mockAddressRepository.findById = jest.fn().mockResolvedValue(null);
 
-    await expect(useCase.execute(address)).rejects.toThrow(NotFoundError);
+    await expect(useCase.execute(updateData)).rejects.toThrow(NotFoundError);
   });
 
-  it("should throw error if address not found", async () => {
-    addressRepo.findById.mockResolvedValue(null);
-    userRepo.findById.mockResolvedValue(user);
+  it("deve lançar erro se o usuário não for encontrado", async () => {
+    mockAddressRepository.findById = jest.fn().mockResolvedValue(mockAddressEntity);
+    mockUserRepository.findById = jest.fn().mockResolvedValue(null);
 
-    await expect(useCase.execute(address)).rejects.toThrow(NotFoundError);
+    await expect(useCase.execute(updateData)).rejects.toThrow(NotFoundError);
   });
 
-  it("should throw error if address does not belong to user", async () => {
-    const addressDeOutroUsuario = new Address(addressId, "123", "Rua A", "Cidade", "Estado", "00000000", location, "id-diferente");
-
-    addressRepo.findById.mockResolvedValue(addressDeOutroUsuario);
-    userRepo.findById.mockResolvedValue(user);
-
-    await expect(useCase.execute(address)).rejects.toThrow(UnauthorizedError);
+  it("deve lançar erro se o usuário não for dono do endereço", async () => {
+    const addressDeOutroUsuario = new Address(
+      "address-id",
+      "123",
+      "Rua 1",
+      "Cidade",
+      "Estado",
+      "12345678",
+      { latitude: 0, longitude: 0 },
+      "another-user-id" // ← userId diferente!
+    );
+  
+    const anotherUser = { id: "user-id" };
+  
+    mockAddressRepository.findById = jest.fn().mockResolvedValue(addressDeOutroUsuario);
+    mockUserRepository.findById = jest.fn().mockResolvedValue(anotherUser);
+  
+    await expect(useCase.execute(updateData)).rejects.toThrow(UnauthorizedError);
   });
 });

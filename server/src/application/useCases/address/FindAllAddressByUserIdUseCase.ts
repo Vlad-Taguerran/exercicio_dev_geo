@@ -12,6 +12,7 @@ export class FindAllAddressByUserIdUseCase{
     try {
       return await this.addressRepository.findAllByUserId(userId);     
     } catch (error) {
+      console.log(error)
       throw new Error("Error ao persistir Adress")
     }
    }

@@ -1,6 +1,7 @@
 'use strict';
-import { DataTypes } from 'sequelize';
-import { v4 as uuidv4 } from 'uuid';
+const  { DataTypes } = require('sequelize') ;
+const { v4 } = require('uuid');
+
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {

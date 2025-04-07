@@ -15,7 +15,7 @@ export class CreateAddressUseCase{
       const savedAddress =  await this.addressRepository.create(address);
       return savedAddress;
     } catch (error) {
-      throw new Error("Error ao persistir Address")
+      throw new Error("Server Error")
     }
    }
 

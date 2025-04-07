@@ -3,7 +3,7 @@
     "username": "root",
     "password": "dev",
     "database": "dev_geo",
-    "host": "db",
+    "host": "localhost",
     "dialect": "mysql",
     "models": ["./src/infrastructure/database/models"]
   },

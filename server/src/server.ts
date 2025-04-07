@@ -10,12 +10,13 @@ import sseRouter from "./infrastructure/http/routes/sse.routes";
 import cors from 'cors';
 import fileRoutes from "./infrastructure/http/routes/file.routes";
 import { errorHandler } from "./infrastructure/middlewares/errorHandler";
+import { DataInitializer } from "./infrastructure/start/dataInitializer";
+const dataInitializer = new DataInitializer();
 
-const filePath = "../files"
 const app =  Express();
 const wss = new WebSocketServer(8081)
   wss.start()
-    connectDB;
+    connectDB();
 app.use(cors());
 app.use(Express.json());
 app.use("/event",sseRouter);
@@ -23,7 +24,7 @@ app.use("/api",userRoutes);
 app.use("/api",addressRoute);
 app.use('/api',authRoute);
 app.use('/api', fileRoutes(wss));
- 
+ dataInitializer.run();
 app.use(errorHandler);
 app._router.stack.forEach((middleware: any) => {
   if (middleware.route) {

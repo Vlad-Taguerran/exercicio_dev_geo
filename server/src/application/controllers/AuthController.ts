@@ -3,12 +3,14 @@ import { LogginUseCase } from '../useCases/auth/loginUseCase';
 import { UserRepository } from '../../infrastructure/database/repositories/UserRepository';
 import { Request, Response } from 'express'
 import { IUserRepository } from '../../domain/repositories/IUserRepository';
+import { IHashService } from '../../domain/interfaces/IHashService';
 export class AuthController {
   private logginUseCase: LogginUseCase
 
   constructor(private userRepository: IUserRepository,
+    private hashService: IHashService
   ) {
-    this.logginUseCase = new LogginUseCase(this.userRepository);
+    this.logginUseCase = new LogginUseCase(this.userRepository,this.hashService);
   }
   async loging(req: Request, res: Response) {
     try {

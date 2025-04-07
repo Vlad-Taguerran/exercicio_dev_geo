@@ -13,7 +13,10 @@ export class CensusDataToDto {
     public censo_2022_domicilio_coletivo_poi_counts: number,
     public censo_2022_estabelecimento_agro_poi_counts: number
   ) {}
-  static fromCsv(row: any): CensusDataToDto {
+  static fromCsv(row: any): CensusDataToDto | null {
+    const lat = parseFloat(row.latitude);
+    const lng = parseFloat(row.longitude);
+    if (isNaN(lat) || isNaN(lng)) return null;
     return new CensusDataToDto(
       parseFloat(row.latitude),
       parseFloat(row.longitude),

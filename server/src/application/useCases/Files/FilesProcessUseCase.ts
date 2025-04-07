@@ -24,7 +24,7 @@ export class ProcessFilesUseCase {
       }
     }
    } catch (error) {
-    logError('Erro ao buscar arquivos no diretorio')
+    logError('Erro ao buscar arquivos no diretorio',error)
    }
   }
 }

@@ -12,6 +12,7 @@ export class FileController {
   private processFilesUseCase: ProcessFilesUseCase;
   private filesget: FilesGetUseCase;
   private findByName: FilesfindByNameUseCase;
+  private  batchIndex:number = 0;
   constructor(
     private fileRepository: IFileRepository,
     private wsServer: WebSocketInterface,
@@ -55,10 +56,17 @@ export class FileController {
       return res.status(500).json({ message: "Erro ao processar arquivos" });
     }
   }
+ 
   private onBatchProcessed(batch: CensusDataToDto[]): void {
-    if (batch.length == 0) {
-      // this.wsServer.close();
+    if (batch.length === 0) {
+     // this.wsServer.sendMessageToAll(JSON.stringify({ type: "done" }));
+      return;
     }
-    this.wsServer.sendMessageToAll(JSON.stringify(batch));
+  
+    this.wsServer.sendMessageToAll(JSON.stringify({
+      //type: "batch",
+     // index: this.batchIndex++,
+      batch,
+    }));
   }
 }

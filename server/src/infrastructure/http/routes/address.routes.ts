@@ -7,8 +7,10 @@ import { UserRepository } from "../../database/repositories/UserRepository";
 const addressRoute = Router();
 const addresRepository = new AddressRepository();
 const userRepository = new UserRepository();
-const addressController = new AddressController(addresRepository,userRepository);
+const addressController = new AddressController(addresRepository, userRepository);
 
-addressRoute.post('/address/:userId',authenticateMiddleware,(req,res)=>{addressController.create(req,res)});
-addressRoute.get('/address/:userId',authenticateMiddleware,(req,res)=>{addressController.findAllByUserId(req,res)});
+addressRoute.post('/address/:userId', authenticateMiddleware, (req, res) => { addressController.create(req, res) });
+addressRoute.get('/address/:userId', authenticateMiddleware, (req, res) => { addressController.findAllByUserId(req, res) });
+addressRoute.put("/address/:userId/:addressId",authenticateMiddleware,(req, res) => { addressController.updateAddress(req, res) });
+addressRoute.delete("/address/:userId/:addressId", authenticateMiddleware, (req, res) => { addressController.deleteAddress(req, res) });
 export default addressRoute;

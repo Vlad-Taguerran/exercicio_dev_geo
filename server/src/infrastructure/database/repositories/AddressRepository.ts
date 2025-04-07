@@ -11,35 +11,37 @@ export class AddressRepository implements IAddressRepository {
   async create(address: Address): Promise<Address> {
     const transaction = await sequelize.transaction();
     try {
-      const userId = address.getUserId();
-      if (!userId) throw new Error("User ID is missing in address");
-
-
-      const addressModel = await AddressModel.create({
-        id: address.getId(),
+      const created = await AddressModel.create({
         address: address.getAddress(),
         house_number: address.getHouseNumber(),
         city: address.getCity(),
         state: address.getState(),
         postcode: address.getPostcode(),
         location: {
-          type: "Point",
-          coordinates: [parseFloat(address.getLocation().longitude.toString()), parseFloat(address.getLocation().latitude.toString())],
+          type: 'Point',
+          coordinates: [
+            parseFloat(address.getLocation().longitude.toString()),
+            parseFloat(address.getLocation().latitude.toString())
+          ],
         },
-        userId: userId
-      }, { transaction })
+        userId: address.getUserId()!,
+        notes: address.getNotes()
+      }, { transaction });
+  
       await transaction.commit();
-      return AddressMapper.toDomain(addressModel);
-    } catch (error: any) {
-      logError('Erro no repositoryo Address ', error)
+      return AddressMapper.toDomain(created);
+    } catch (error) {
       await transaction.rollback();
-      throw new Error(`Erro ao criar endereço: ${error.message}`);
+      logError('Erro no AddressRepository.create', error);
+      throw new Error(`Erro ao criar endereço: ${error}`);
     }
   }
   async findAllByUserId(userId: string): Promise<Address[]> {
     try {
       const addressModel = await AddressModel.findAll({ where: { 'userId': userId } });
+     
       const addresses = addressModel.map((model) => AddressMapper.toDomain(model))
+           
       return addresses;
 
     } catch (error) {

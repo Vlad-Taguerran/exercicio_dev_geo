@@ -1,4 +1,5 @@
-import { UpdateAddressDTO } from "../../application/dtos/address/UpdateAddressDTO";
+
+import { AddressUpdateDto } from "../../application/dtos/address/AddressUpdateDto";
 import { ConflictError } from "../../application/erros/ConflictError";
 
 export class Address {
@@ -51,18 +52,18 @@ export class Address {
     }
     this.userId = userId;
   }
+  getNotes(){
+    return this.notes;
+  }
 
-  updatePartial(data: UpdateAddressDTO) {
+  updatePartial(data: AddressUpdateDto) {
     if (data.house_number !== undefined) this.house_number = data.house_number;
     if (data.address !== undefined) this.address = data.address;
     if (data.city !== undefined) this.city = data.city;
     if (data.state !== undefined) this.state = data.state;
     if (data.postcode !== undefined) this.postcode = data.postcode;
-    if (data.location !== undefined) this.location = data.location;
   }
   
-  getNotes(){
-    return this.notes;
-  }
+
   
 }

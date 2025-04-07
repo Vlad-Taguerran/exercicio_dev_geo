@@ -27,7 +27,11 @@ class CsvReader {
             return new Promise((resolve, rejects) => {
                 fs_1.default.createReadStream(filepath).pipe((0, csv_parse_1.parse)({ delimiter: delimiter, columns: true, trim: true }))
                     .on("data", (row) => {
-                    batch.push(mapRow(row));
+                        const mapped = mapRow(row);
+                        if (mapped) {
+                          batch.push(mapped);
+                        }
+                      
                     lineCount++;
                     if (batch.length == batchSize) {
                         onBatchProcessed([...batch]);
