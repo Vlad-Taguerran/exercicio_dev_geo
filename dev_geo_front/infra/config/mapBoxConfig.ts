@@ -8,5 +8,7 @@ export  const  mapBoxConfig = {
   BATCH_SIZE : 500,
   BATCH_INTERVAL_MS : 50,
   MARKER_ICON_ID:'custom-marker-icon',
-MARKER_ICON_PATH : '/location-pin.png'
+MARKER_ICON_PATH : '/location-pin.png',
+CLUSTER_LAYER_ID :"clusters-circle",
+CLUSTER_COUNT_LAYER_ID: "cluster-count-text"
 }

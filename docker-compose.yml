@@ -18,7 +18,9 @@ services:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
       retries: 5
-  backend:
+    networks:
+      - devGeo  
+  api:
     build: ./server
     container_name: server
     ports:
@@ -37,19 +39,26 @@ services:
       - ./server:/usr/src/app 
       - /usr/src/app/node_modules 
     command: yarn setup 
-
+    networks:
+      - devGeo
   frontend:
     build: ./dev_geo_front
     container_name: frontend
     ports:
       - "3000:3000"
     environment:
-        NEXT_PUBLIC_API_URL: http://backend:8000/api/
-        NEXT_PUBLIC_API_WS: ws://backend:8081
-        NEXT_PUBLIC_API_SSE: http://backend:8000/event/address
+        NEXT_PUBLIC_API_URL: 'http://api:8000/api/'
+        NEXT_PUBLIC_API_WS: 'ws://api:8081'
+        NEXT_PUBLIC_API_SSE: 'http://api:8000/event/address'
     depends_on:
-      - backend
+      - api
   
     command: yarn start 
+    networks:
+      - devGeo
+
 volumes:
   mysql_data:
+networks:
+  devGeo:
+    driver: bridge  

@@ -16,7 +16,8 @@ const Api = async (url: string, options: RequestInit = {}) => {
   if (options.method?.toUpperCase() === "GET") {
     delete options.body;
   }
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
+  const base = process.env.NEXT_PUBLIC_API_URL
+  const response = await fetch(`http://api:8000/api/${url}`, {
     ...options,
     headers,
   });

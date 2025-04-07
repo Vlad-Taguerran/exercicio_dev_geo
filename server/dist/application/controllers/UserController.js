@@ -1,39 +1,65 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = void 0;
 const UserPostDto_1 = require("../dtos/User/UserPostDto");
 const CreateUser_1 = require("../useCases/user/CreateUser");
-const UserRepository_1 = require("../../infrastructure/database/repositories/UserRepository");
+const FindUserByEmail_1 = require("../useCases/user/FindUserByEmail");
+const UserMapper_1 = require("../mappers/UserMapper");
+const HttpErrorHandler_1 = require("../erros/HttpErrorHandler");
+const FindUserByIdUseCase_1 = require("../useCases/user/FindUserByIdUseCase");
+const UpdateUser_1 = require("../useCases/user/UpdateUser");
+const UserUpdateDto_1 = require("../dtos/User/UserUpdateDto");
 class UserController {
-    constructor() {
-        this.userRepository = new UserRepository_1.UserRepository();
+    constructor(userRepository, hashService) {
+        this.userRepository = userRepository;
+        this.hashService = hashService;
         this.createUser = new CreateUser_1.CreateUser(this.userRepository);
+        this.findUserByEmail = new FindUserByEmail_1.FindUserByEmail(this.userRepository);
+        this.findUserById = new FindUserByIdUseCase_1.FindUserById(this.userRepository);
+        this.updateUser = new UpdateUser_1.UpdateUser(this.userRepository, hashService);
     }
-    create(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!req.body) {
-                return res.status(400).json("Dados faltantes");
-            }
-            try {
-                const { name, email, password } = req.body;
-                const userDto = new UserPostDto_1.UserPostDto(name, email, password);
-                const user = yield this.createUser.execute(userDto);
-                return res.status(201).json(user);
-            }
-            catch (error) {
-                console.log(`[ERROR] ${error}`);
-                return res.status(500).json('Error no servidor');
-            }
-        });
+    async create(req, res) {
+        try {
+            const { name, email, password } = req.body;
+            const userDto = new UserPostDto_1.UserPostDto(name, email, password);
+            const user = await this.createUser.execute(userDto);
+            return res.status(201).json(UserMapper_1.UserMappper.toGetDto(user));
+        }
+        catch (error) {
+            return (0, HttpErrorHandler_1.handleHttpError)(error, res);
+        }
+    }
+    async findByEmail(req, res) {
+        try {
+            const { email } = req.body;
+            const user = await this.findUserByEmail.execute(email);
+            return res.status(200).json(UserMapper_1.UserMappper.toGetDto(user));
+        }
+        catch (error) {
+            return (0, HttpErrorHandler_1.handleHttpError)(error, res);
+        }
+    }
+    async findById(req, res) {
+        try {
+            const { id } = req.params;
+            const user = await this.findUserById.execute(id);
+            return res.status(200).json(UserMapper_1.UserMappper.toGetDto(user));
+        }
+        catch (error) {
+            return (0, HttpErrorHandler_1.handleHttpError)(error, res);
+        }
+    }
+    async update(req, res) {
+        try {
+            const { id } = req.params;
+            const { name, email, password } = req.body;
+            const dto = new UserUpdateDto_1.UserUpdateDto(id, name, email, password);
+            const user = await this.updateUser.execute(dto);
+            return res.status(200).json(UserMapper_1.UserMappper.toGetDto(user));
+        }
+        catch (error) {
+            return (0, HttpErrorHandler_1.handleHttpError)(error, res);
+        }
     }
 }
 exports.UserController = UserController;

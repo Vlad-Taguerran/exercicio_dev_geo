@@ -1,97 +1,84 @@
-# Teste para Desenvolvedor Fullstack - Kognita
+# Documentação de Entrega
 
-## Informações gerais
+## Visão Geral
 
-1. Sobre o prazo de entrega: 1 semana (7 dias) a partir do recebimento do mesmo.
-2. Não é permitido compartilhar esse exercício com terceiros.
+Esta documentação descreve a entrega do projeto ***Dev Geo***. O objetivo principal deste projeto é ler arquivo CSV, enviar dadoas ao fronte e calcular medias, somas emedianas com base nos porntos dentro de um poligono. O projeto foi desenvolvido utilizando ***NexJs*** para front e ***express + typeScript*** no back.
+
+## Sumário
+
+1. [Visão Geral](#visão-geral)
+2. [Objetivos da Entrega](#objetivos-da-entrega)
+3. [Tecnologias Utilizadas](#tecnologias-utilizadas)
+4. [Funcionalidades Implementadas](#funcionalidades-implementadas)
+5. [Instruções de Instalação](#instruções-de-instalação)
+6. [Configuração](#configuração)
+7. [Testes Realizados](#testes-realizados)
+8. [Considerações Finais](#considerações-finais)
+
+## Objetivos da Entrega
+
+- Implementação da funcionalidade ler o arquvo csv, exibir pontos no mapa, criar pontos no mapa.
+- Garantir a qualidade e estabilidade do sistema com ultilizado o wewebSocket para envio de dados em lots.
+- Implementação de botão para vidualisar o arquivo.
+
+## Tecnologias Utilizadas
+
+- **Frontend**: NextJs, Zustand, e zod
+- **Backend**: Express + typescript
+- **Banco de Dados**:Mysql
+- **Ferramentas de Desenvolvimento**:Docker
+- **Bibliotecas**:  Material-UI
+
+## Funcionalidades Implementadas
+
+1. **Select de arquivos**:
+   - Descrição: Ao selecionar um arquivo no select que esta na barra superio ele será carregado..
+   - Como usar: Aguarde uns segundos e procure o ponto de localização  no mapa.
+   - Exemplos:Clicar uma fez select.
+
+2. **Poligono**:
+   - Descrição: Poligono.
+   - Como usar: clicar no icone da lateral depois clicar na  area ao qual quer calcular aos quais quer obter calculo, em fe dar doublclic para confirmar a area e calcular.
+
+2. **Point Map**:
+   - Descrição: point Map.
+   - Como usar: clicar no botão adicionar icone e depois clicar no mapa surgirar um modal com as informações da localização você pode salvar ou não, uma vez salvos são persistidos no baco de dados;
 
 
-## Objetivo do Teste
+## Instruções de Instalação
 
-Criar uma aplicação web interativa com mapas que permita o usuário final visualizar e interagir com dados geoespaciais.
+Para configurar e executar o projeto utilizando Docker, siga as etapas abaixo:
 
----
+### 1. Clonando o Repositório
 
-## Instruções de Entrega
+Clone o repositório do projeto para sua máquina local:
 
-1. **Fork do Repositório Original**  
-   Crie um fork do repositório original para sua conta no GitHub. Isso permitirá que você trabalhe no projeto sem alterar o repositório principal.
+## Construindo e Subindo os Contêineres
+No diretório raiz do projeto, onde o arquivo docker-compose.yml está localizado, execute o seguinte comando para construir e iniciar os contêineres:
 
-2. **Desenvolvimento e Histórico de Commits**  
-   Realize todas as alterações e implementações diretamente no repositório forkeado. Certifique-se de manter um histórico de commits que demonstre o progresso e as decisões técnicas tomadas.
+Esse comando vai:
 
-3. **Entrega Final**  
-   A entrega deve ser feita por meio do repositório "forkeado", contendo:  
-   - Um arquivo `README.md` com instruções claras sobre como configurar, rodar e testar a aplicação.
+Construir os contêineres necessários (backend, frontend, e db).
 
----
+Subir os contêineres com base no arquivo docker-compose.yml.
 
-## Passo a Passo para o Desenvolvimento
+## Acessando os Contêineres
+Após os contêineres estarem em funcionamento, você pode acessar:
 
-1. **Configuração Inicial**  
-   - Escolha e configure as dependências necessárias para o projeto (ex.: React ou outro framework, Leaflet/Mapbox, Express).  
-   - Configure um servidor básico usando Node.js para servir a aplicação e processar chamadas à API.
-  
-2. **Utilização das Bases de Dados**  
-   - Use os arquivos fornecidos na pasta `files` para adicionar pontos ao mapa.  
-   - Configure eventos para que, ao clicar ou passar o mouse sobre os marcadores, a informação de `censo_2022_domicilio_particular_poi_counts` seja exibida.  
+Frontend: Acesse o frontend no navegador em http://localhost:3000.
 
-3. **Implementação do Mapa**  
-   - Exiba o mapa utilizando **Leaflet** ou **Mapbox**.  
-   - Implemente funcionalidades que permitam desenhar polígonos no mapa, e realizar e exibir o resultado de operações sobre a área demarcada para o usuário final. Operações: total de pontos, soma, média e mediana.
+Backend: O backend estará disponível em http://localhost:8000 para API RESTful.
 
-4. **Integração com a API OpenStreetMap**  
-   - Adicione uma funcionalidade que permita que o usuário insira pinos ao clicar no mapa.  
-   - Para cada pino adicionado, consulte a API do OpenStreetMap com as coordenadas correspondentes.  
-   - Persista e exiba (quando possível) as informações retornadas ao clicar ou passar o mouse sobre os pinos.
-    - O ponto { lat: 40.748817, lon: -73.985428} tem o seguinte resultado: 
-        ```bash
-        {
-            "place_id": 123456,
-            "lat": "40.748817",
-            "lon": "-73.985428",
-            "display_name": "Empire State Building, New York, NY, USA",
-            "address": {
-                "building": "Empire State Building",
-                "city": "New York",
-                "state": "NY",
-                "country": "United States",
-                "postcode": "10118"
-            }
-        }
-        ```
+Banco de Dados (MySQL): O banco de dados MySQL estará disponível na porta 3306 com as credenciais de usuário configuradas no docker-compose.yml:
 
-5. **Testes e Documentação**  
-   - Inclua testes básicos para validar o funcionamento das principais funcionalidades.  
-   - Documente todo o processo no `README.md`, incluindo como instalar dependências, rodar a aplicação e executar os testes.
+Usuário: dev
 
----
+Senha: dev
 
-## Desafios Adicionais (Extras)
+### Banco de dados: dev_geo
 
-Para destacar ainda mais suas habilidades, implemente uma ou mais das funcionalidades abaixo:
+## Configuração Adicional do Banco de Dados
 
-1. **Autenticação JWT**  
-   - Implemente autenticação no backend utilizando **JSON Web Tokens (JWT)** para proteger as rotas.
+O contêiner do MySQL já está configurado para criar o banco de dados dev_geo automaticamente. Caso precise de algum dado específico ou realizar migrações, acesse o contêiner do backend:
 
-2. **Persistência de Dados**  
-   - Salve as consultas feitas pelo usuário em um banco de dados.  
-   - Armazene as operações realizadas, como o desenho de polígonos e adição de pinos, em um banco de dados local ou em memória.
-
-3. **Filtros e Edição de Pinos**  
-   - Adicione filtros que permitam exibir apenas determinados tipos de pontos da base de dados fake no mapa.  
-   - Implemente funcionalidades para editar ou remover pinos adicionados pelo usuário.
-
-4. **Testes Automatizados**  
-   - Adicione testes automatizados usando ferramentas como **Jest**, **Cypress** ou similares.
-
----
-
-## Critérios de Avaliação
-
-- **Organização do Código**: Qualidade, clareza e modularidade do código.  
-- **Funcionalidade**: Implementação correta e funcionalidade das features solicitadas.  
-- **Documentação**: Instruções claras no README e histórico de commits detalhado.  
-- **Extras**: Implementação dos desafios adicionais.  
-
-Boa sorte e divirta-se desenvolvendo! 🚀
+docker exec -it server bash

@@ -5,8 +5,7 @@ const Address_1 = require("../../domain/entities/Address");
 const AddressGetDto_1 = require("../dtos/address/AddressGetDto");
 class AddressMapper {
     static toGetDto(address) {
-        const rete = new AddressGetDto_1.AddressGetDto(address.getId(), address.getAddress(), address.getHouseNumber(), address.getCity(), address.getState(), address.getPostcode(), address.getLocation().latitude.toString(), address.getLocation().longitude.toString());
-        return rete;
+        return new AddressGetDto_1.AddressGetDto(address.getId(), address.getAddress(), address.getHouseNumber(), address.getCity(), address.getState(), address.getPostcode(), address.getLocation().latitude.toString(), address.getLocation().longitude.toString());
     }
     static toGetDtoList(addresses) {
         return addresses.map(this.toGetDto);

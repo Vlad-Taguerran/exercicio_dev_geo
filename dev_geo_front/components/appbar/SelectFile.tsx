@@ -14,8 +14,10 @@ const SelectFile = ()=>{
           labelId="demo-simple-select-autowidth-label"
           id="demo-simple-select-autowidth"
           value={selected}
+          variant="filled"
+          color="info"
           onChange={(e)=>selectFile(e.target.value)}
-         autoWidth
+          autoWidth
         >
            <MenuItem value="">
             <em>None</em>

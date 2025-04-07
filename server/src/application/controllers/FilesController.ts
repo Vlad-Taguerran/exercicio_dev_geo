@@ -59,13 +59,10 @@ export class FileController {
  
   private onBatchProcessed(batch: CensusDataToDto[]): void {
     if (batch.length === 0) {
-     // this.wsServer.sendMessageToAll(JSON.stringify({ type: "done" }));
       return;
     }
   
     this.wsServer.sendMessageToAll(JSON.stringify({
-      //type: "batch",
-     // index: this.batchIndex++,
       batch,
     }));
   }

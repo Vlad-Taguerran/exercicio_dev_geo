@@ -9,7 +9,7 @@ const secretKey = process.env.JWT_SECRET || '2d3d8b43fa0cb7929eeacc30f52d7e5b4b3
 // Middleware de autenticação
 const authenticateMiddleware = (req, res, next) => {
     const authHeader = req.headers['authorization'];
-    const token = authHeader === null || authHeader === void 0 ? void 0 : authHeader.split(' ')[1];
+    const token = authHeader?.split(' ')[1];
     console.log(token);
     if (token == null) {
         res.sendStatus(401);

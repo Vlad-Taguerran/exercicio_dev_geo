@@ -20,20 +20,17 @@ async function verifyToken(token: string): Promise<JWTPayload | null> {
 }
 
 export default async function middleware(request: NextRequest) {
-  if (request.nextUrl.pathname === "/") {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
-
+ 
   const token = request.cookies.get("authToken")?.value;
 
   if (!token) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   const user = await verifyToken(token);
 
   if (!user || !user.userId) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   const response = NextResponse.next();

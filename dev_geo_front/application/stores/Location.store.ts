@@ -8,11 +8,13 @@ type state = {
 type action = {
   setLocation:(data:IAddress)=>void
   changeModalState: ()=>void
+  reset: ()=>void
 }
 
 export const useLocationStore = create<state & action>()((set)=>({
   location: null,
   modalState: false,
   setLocation: (data) => set(()=>({location: data, modalState:true})),
-  changeModalState: ()=> set((state)=>({modalState: !state.modalState}))
+  changeModalState: ()=> set((state)=>({modalState: !state.modalState})),
+  reset: ()=>({location:null})
 }))

@@ -1,14 +1,14 @@
 {
   "development": {
-    "username": "root",
+    "username": "dev",
     "password": "dev",
     "database": "dev_geo",
-    "host": "localhost",
+    "host": "db",
     "dialect": "mysql",
     "models": ["./src/infrastructure/database/models"]
   },
   "test": {
-    "username": "root",
+    "username": "dev",
     "password": "dev",
     "database": "dev_geo",
     "host": "db",
@@ -16,7 +16,7 @@
     "models": ["./src/infrastructure/database/models"]
   },
   "production": {
-    "username": "root",
+    "username": "dev",
     "password": "dev",
     "database": "dev_geo",
     "host": "db",

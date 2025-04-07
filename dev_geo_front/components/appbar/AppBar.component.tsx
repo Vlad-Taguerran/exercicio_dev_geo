@@ -8,7 +8,7 @@ import SelectFile from "./SelectFile";
   const {pinMapState,changePinMapState}= useMapActions()
 
   return(
-    <AppBar position="static" color="secondary">
+    <AppBar position="static" color="primary">
         <Container maxWidth="xl">
         <Toolbar disableGutters>
             <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex', } }}>
@@ -17,9 +17,10 @@ import SelectFile from "./SelectFile";
               <Button
                 onClick={changePinMapState}
                 variant="contained"
+                color="info"
                 sx={{ my: 2,mx: '1rem', color: 'white', display: 'block' }}
               >
-               {!pinMapState ?  <Typography>Adicionar Pino</Typography>:  <Typography>Cancelar</Typography>}
+               {!pinMapState ?  <Typography variant="body2">Adicionar Pino</Typography>:  <Typography variant="body2">Cancelar</Typography>}
               </Button>
               
               <SelectFile/>

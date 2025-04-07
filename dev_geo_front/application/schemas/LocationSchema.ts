@@ -10,6 +10,7 @@ export interface LocationActionState {
     postcode?: string[] | undefined;
     long?: string[] | undefined;
     lat?: string[] | undefined;
+    notes?:string[]| undefined;
     general?: string;
   } | null;
   success?: boolean;
@@ -21,6 +22,7 @@ export const locationSchema = z.object({
   state: z.string(),
   postcode: z.string(),
   long: z.string(),
-  lat: z.string()
+  lat: z.string(),
+  notes: z.string()
 
 })

@@ -1,14 +1,21 @@
-FROM node:21-alpine
+# Estágio de build
+FROM node:21-alpine AS build
 
 WORKDIR /usr/src/app
 
 COPY package*.json yarn.lock ./
 RUN yarn install
 
-RUN yarn global add ts-node typescript
-
 COPY . .
-
 RUN yarn build
 
-CMD ["yarn", "dev"]
+# Estágio de produção
+FROM node:21-alpine
+
+WORKDIR /usr/src/app
+
+COPY --from=build /usr/src/app /usr/src/app
+
+RUN yarn global add ts-node typescript
+
+CMD ["yarn", "start"]

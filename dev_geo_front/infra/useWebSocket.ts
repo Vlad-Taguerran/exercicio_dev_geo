@@ -2,14 +2,17 @@
 import { useEffect } from "react";
 import  {WebSocketClient} from "./webSocket/WebSocketClient";
 
+interface WebSocketData {
+  batch: any; 
+}
 
 export function useWebSocket<T>(callback: (data: T) => void) {
   useEffect(() => {
    
-    const client = new WebSocketClient<T>();
-    client.onMessage((data: T) => {
-      console.log("Mensagem recebida via WebSocket:", data); // ✅ AQUI você tem acesso ao `data`
-      callback(data.batch); // repassa pro callback original
+    const client = new WebSocketClient<WebSocketData>();
+    client.onMessage((data: WebSocketData) => {
+      console.log("Mensagem recebida via WebSocket:", data);
+      callback(data.batch); 
     });
 
     client.connect();

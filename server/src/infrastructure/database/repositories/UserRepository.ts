@@ -7,7 +7,7 @@ export class UserRepository implements IUserRepository{
   async findById(id: string): Promise<User | null> {
     const user = await UserModel.findOne({ where: { id } });
     if (!user) return null;
-    return user;;
+    return await UserMappper.toEntityFromDb(user);
   }
   async findByEmail(email: string): Promise<User | null> {
     try {

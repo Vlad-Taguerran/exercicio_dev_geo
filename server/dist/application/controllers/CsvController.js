@@ -1,29 +1,32 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CsvController = void 0;
 class CsvController {
-    constructor(ReadCsvUseCase) {
+    constructor(ReadCsvUseCase, fileToUpdate) {
         this.ReadCsvUseCase = ReadCsvUseCase;
+        this.fileToUpdate = fileToUpdate;
     }
-    getCensu(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const response = yield this.ReadCsvUseCase.execute();
-                return res.json(response);
-            }
-            catch (error) {
-                return res.status(500).json({ error: "Erro ao processar CSV" });
-            }
-        });
+    async getCensu(req, res) {
+        try {
+            const response = await this.ReadCsvUseCase.execute();
+            return res.json(response);
+        }
+        catch (error) {
+            return res.status(500).json({ error: "Erro ao processar CSV" });
+        }
+    }
+    async updateFile(req, res) {
+        const file = req.file; // multer adiciona `req.file`
+        if (!file) {
+            return res.status(400).json({ error: "Arquivo não encontrado." });
+        }
+        try {
+            await this.fileToUpdate.execute(file.filename, file.path);
+            return res.status(200).json({ message: "Arquivo salvo com sucesso!" });
+        }
+        catch (error) {
+            return res.status(400).json({ error: error.message });
+        }
     }
 }
 exports.CsvController = CsvController;

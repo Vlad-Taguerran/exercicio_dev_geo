@@ -7,7 +7,7 @@ export class WebSocketClient<T> implements IWebSocketClient {
  
  
   connect(): void {
-    this.socket = new WebSocket(`${process.env.NEXT_PUBLIC_API_WS}`);
+    this.socket = new WebSocket("ws://localhost:8081");
 
     this.socket.onopen = () => {
       console.log("WebSocket conectado");

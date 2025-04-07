@@ -16,6 +16,10 @@ class CensusDataToDto {
         this.censo_2022_estabelecimento_agro_poi_counts = censo_2022_estabelecimento_agro_poi_counts;
     }
     static fromCsv(row) {
+        const lat = parseFloat(row.latitude);
+        const lng = parseFloat(row.longitude);
+        if (isNaN(lat) || isNaN(lng))
+            return null;
         return new CensusDataToDto(parseFloat(row.latitude), parseFloat(row.longitude), parseInt(row.censo_2022_estabelecimento_outras_finalidades_poi_counts), parseInt(row.censo_2022_domicilio_particular_poi_counts), parseInt(row.censo_2022_estabelecimento_construcao_poi_counts), parseInt(row.censo_2022_estabelecimento_religioso_poi_counts), parseInt(row.censo_2022_estabelecimento_ensino_poi_counts), parseInt(row.censo_2022_estabelecimento_saude_poi_counts), parseInt(row.censo_2022_domicilio_coletivo_poi_counts), parseInt(row.censo_2022_estabelecimento_agro_poi_counts));
     }
     toEntity() {

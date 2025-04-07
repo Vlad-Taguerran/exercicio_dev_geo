@@ -13,7 +13,8 @@ export const addressAction = async (prevState: any, formData:FormData)=>{
     state: formData.get('state') as string,
     postcode: formData.get('postcode') as string,
     long: formData.get('lon') as string,        
-    lat: formData.get('lat') as string     
+    lat: formData.get('lat') as string,    
+    notes: formData.get('notes') as string
   };
 
   const validatedFields = locationSchema.safeParse(dataToValidate);

@@ -10,5 +10,6 @@ export interface IAddress {
   country?: string;
   country_code?: string;
   lat?:string;
-  lon?:string
+  lon?:string;
+  notes?:string
 }

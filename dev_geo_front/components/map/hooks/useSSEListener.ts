@@ -4,7 +4,7 @@ import { EventService } from '../../../infra/event/EventService';
 import { IAddressDto } from "@/application/interfaces/IAddressDto";
 
 export function useSSEListener() {
-  const sseUrl = process.env.NEXT_PUBLIC_API_SSE || 'http://localhost:8000/event/address';
+  const sseUrl = "http://localhost:8000/event/address"
   const setMarkers = useMarkers.getState().setMarkers;
 
   useEffect(() => {
