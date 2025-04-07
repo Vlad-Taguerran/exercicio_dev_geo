@@ -1,0 +1,16 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const authMiddleware_1 = require("../../middlewares/authMiddleware");
+const AddressController_1 = require("../../../application/controllers/AddressController");
+const AddressRepository_1 = require("../../database/repositories/AddressRepository");
+const UserRepository_1 = require("../../database/repositories/UserRepository");
+const addressRoute = (0, express_1.Router)();
+const addresRepository = new AddressRepository_1.AddressRepository();
+const userRepository = new UserRepository_1.UserRepository();
+const addressController = new AddressController_1.AddressController(addresRepository, userRepository);
+addressRoute.post('/address/:userId', authMiddleware_1.authenticateMiddleware, (req, res) => { addressController.create(req, res); });
+addressRoute.get('/address/:userId', authMiddleware_1.authenticateMiddleware, (req, res) => { addressController.findAllByUserId(req, res); });
+addressRoute.put("/address/:userId/:addressId", authMiddleware_1.authenticateMiddleware, (req, res) => { addressController.updateAddress(req, res); });
+addressRoute.delete("/address/:userId/:addressId", authMiddleware_1.authenticateMiddleware, (req, res) => { addressController.deleteAddress(req, res); });
+exports.default = addressRoute;

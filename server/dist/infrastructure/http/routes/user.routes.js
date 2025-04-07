@@ -1,0 +1,15 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const UserController_1 = require("../../../application/controllers/UserController");
+const UserRepository_1 = require("../../database/repositories/UserRepository");
+const HashService__service_1 = require("../../services/HashService..service");
+const userRoutes = (0, express_1.Router)();
+const userRepository = new UserRepository_1.UserRepository();
+const hashService = new HashService__service_1.HashService();
+const userController = new UserController_1.UserController(userRepository, hashService);
+userRoutes.post("/user", (req, res) => { userController.create(req, res); });
+userRoutes.get("/user/email", (req, res) => { userController.findByEmail(req, res); });
+userRoutes.get("/user/:id", (req, res) => { userController.findById(req, res); });
+userRoutes.put("/user", (req, res) => { userController.update(req, res); });
+exports.default = userRoutes;

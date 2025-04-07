@@ -1,0 +1,45 @@
+{
+  "name": "dev_geo_front",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@emotion/cache": "^11.14.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mapbox/mapbox-gl-draw": "^1.5.0",
+    "@mui/material": "^7.0.1",
+    "@mui/material-nextjs": "^7.0.0",
+    "@turf/turf": "^7.2.0",
+    "@types/mapbox-gl": "^3.4.1",
+    "@types/node-jose": "^1.1.13",
+    "geojson": "^0.5.0",
+    "install": "^0.13.0",
+    "jose": "^6.0.10",
+    "jsonwebtoken": "^9.0.2",
+    "mapbox-gl": "^3.10.0",
+    "maplibre-gl": "^5.3.0",
+    "next": "15.2.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "zod": "^3.24.2",
+    "zustand": "^5.0.3"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/mapbox__mapbox-gl-draw": "^1.4.8",
+    "@types/node": "^22.14.0",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.2.4",
+    "typescript": "^5",
+    "webpack": "^5.98.0"
+  }
+}

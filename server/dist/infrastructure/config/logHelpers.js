@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.logInfo = exports.logWarning = exports.logError = exports.logSuccess = void 0;
+const logSuccess = (msg) => console.log(`✅ ${msg}`);
+exports.logSuccess = logSuccess;
+const logError = (msg, err) => console.error(`❌ ${msg}`);
+exports.logError = logError;
+const logWarning = (msg) => console.warn(`⚠️ ${msg}`);
+exports.logWarning = logWarning;
+const logInfo = (msg) => console.info(`ℹ️ ${msg}`);
+exports.logInfo = logInfo;

@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const AuthController_1 = require("../../../application/controllers/AuthController");
+const UserRepository_1 = require("../../database/repositories/UserRepository");
+const HashService__service_1 = require("../../services/HashService..service");
+const authRoute = (0, express_1.Router)();
+const userRepository = new UserRepository_1.UserRepository();
+const hashService = new HashService__service_1.HashService();
+const userController = new AuthController_1.AuthController(userRepository, hashService);
+authRoute.post('/auth', (req, res) => { userController.loging(req, res); });
+exports.default = authRoute;
