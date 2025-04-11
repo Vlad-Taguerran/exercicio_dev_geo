@@ -19,3 +19,15 @@ export const getFileByName = async (filename:string) =>{
   console.log(err)
  }
 }
+
+export const uploadFileService = async (file: File)=>{
+  const newFormData = new FormData();
+  newFormData.append('file', file);
+  try {
+   const response = await Api('csv',{method:'POST',body: newFormData});
+    
+   return response;
+  } catch (error) {
+    console.log(error)
+  }
+}

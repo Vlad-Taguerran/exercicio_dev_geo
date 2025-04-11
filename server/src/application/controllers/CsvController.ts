@@ -14,16 +14,12 @@ export class CsvController{
   }
   async updateFile(req: Request, res: Response ){
     const file = req.file; // multer adiciona `req.file`
-
     if (!file) {
       return res.status(400).json({ error: "Arquivo não encontrado." });
     }
 
     try {
-      await this.fileToUpdate.execute(
-         file.filename,
-        file.path
-      );
+      await this.fileToUpdate.execute(file);
 
       return res.status(200).json({ message: "Arquivo salvo com sucesso!" });
     } catch (error: any) {

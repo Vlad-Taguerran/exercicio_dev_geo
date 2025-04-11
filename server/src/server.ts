@@ -23,6 +23,7 @@ app.use("/event",sseRouter);
 app.use("/api",userRoutes);
 app.use("/api",addressRoute);
 app.use('/api',authRoute);
+app.use('/api',csvRouter(wss))
 app.use('/api', fileRoutes(wss));
  dataInitializer.run();
 app.use(errorHandler);

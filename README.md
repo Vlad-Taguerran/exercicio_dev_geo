@@ -4,16 +4,6 @@
 
 Esta documentação descreve a entrega do projeto ***Dev Geo***. O objetivo principal deste projeto é ler arquivo CSV, enviar dadoas ao fronte e calcular medias, somas emedianas com base nos porntos dentro de um poligono. O projeto foi desenvolvido utilizando ***NexJs*** para front e ***express + typeScript*** no back.
 
-## Sumário
-
-1. [Visão Geral](#visão-geral)
-2. [Objetivos da Entrega](#objetivos-da-entrega)
-3. [Tecnologias Utilizadas](#tecnologias-utilizadas)
-4. [Funcionalidades Implementadas](#funcionalidades-implementadas)
-5. [Instruções de Instalação](#instruções-de-instalação)
-6. [Configuração](#configuração)
-7. [Testes Realizados](#testes-realizados)
-8. [Considerações Finais](#considerações-finais)
 
 ## Objetivos da Entrega
 
@@ -24,7 +14,7 @@ Esta documentação descreve a entrega do projeto ***Dev Geo***. O objetivo prin
 ## Tecnologias Utilizadas
 
 - **Frontend**: NextJs, Zustand, e zod
-- **Backend**: Express + typescript
+- **Backend**: Express + typescript, jest
 - **Banco de Dados**:Mysql
 - **Ferramentas de Desenvolvimento**:Docker
 - **Bibliotecas**:  Material-UI
@@ -43,7 +33,8 @@ Esta documentação descreve a entrega do projeto ***Dev Geo***. O objetivo prin
 2. **Point Map**:
    - Descrição: point Map.
    - Como usar: clicar no botão adicionar icone e depois clicar no mapa surgirar um modal com as informações da localização você pode salvar ou não, uma vez salvos são persistidos no baco de dados;
-
+3. **A implementar no front**
+   - o back end esta preparado para receber novos usuarios atraves do metodo create, atualizar dados e deletar, assim comopara Address, o back end tem estrutura inicial para saslvar os arquivos em pasta e enviar para o db a referencia do arquivo.
 
 ## Instruções de Instalação
 

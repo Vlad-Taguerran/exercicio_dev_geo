@@ -16,7 +16,7 @@ export class WebSocketClient<T> implements IWebSocketClient {
    this.socket.onmessage = (event) => {
     try {
       const data = JSON.parse(event.data) as T; 
-      
+      console.log(data)
       if (this.messageCallback) {
         this.messageCallback(data);
       }

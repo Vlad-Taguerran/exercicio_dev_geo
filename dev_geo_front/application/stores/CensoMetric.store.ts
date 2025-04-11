@@ -14,14 +14,14 @@ interface action {
 export const useCensoStore = create<state & action>((set) => ({
   metricStat: false,
   data: {
-    censo_2022_domicilio_coletivo_poi_counts: { total: 0, sum: 0, mean: 0, median: 0 },
-    censo_2022_domicilio_particular_poi_counts: { total: 0, sum: 0, mean: 0, median: 0 },
-    censo_2022_estabelecimento_agro_poi_counts: { total: 0, sum: 0, mean: 0, median: 0 },
-    censo_2022_estabelecimento_construcao_poi_counts: { total: 0, sum: 0, mean: 0, median: 0 },
-    censo_2022_estabelecimento_ensino_poi_counts: { total: 0, sum: 0, mean: 0, median: 0 },
-    censo_2022_estabelecimento_outras_finalidades_poi_counts: { total: 0, sum: 0, mean: 0, median: 0 },
-    censo_2022_estabelecimento_religioso_poi_counts: { total: 0, sum: 0, mean: 0, median: 0 },
-    censo_2022_estabelecimento_saude_poi_counts: { total: 0, sum: 0, mean: 0, median: 0 },
+    domicilio_coletivo: { total: 0, sum: 0, mean: 0, median: 0 },
+    domicilio_particular: { total: 0, sum: 0, mean: 0, median: 0 },
+    agro: { total: 0, sum: 0, mean: 0, median: 0 },
+    construcao: { total: 0, sum: 0, mean: 0, median: 0 },
+    ensino: { total: 0, sum: 0, mean: 0, median: 0 },
+    outras_finalidades: { total: 0, sum: 0, mean: 0, median: 0 },
+    religioso: { total: 0, sum: 0, mean: 0, median: 0 },
+    saude: { total: 0, sum: 0, mean: 0, median: 0 },
   },
   setMetric: (newData) => set((state) => ({
     data: { ...state.data, ...newData }

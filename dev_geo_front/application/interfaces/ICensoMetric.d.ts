@@ -6,12 +6,12 @@ export interface CensoData {
 }
 
 export interface ICensoMetric {
-  censo_2022_domicilio_coletivo_poi_counts: CensoData;
-  censo_2022_domicilio_particular_poi_counts: CensoData;
-  censo_2022_estabelecimento_agro_poi_counts: CensoData;
-  censo_2022_estabelecimento_construcao_poi_counts: CensoData;
-  censo_2022_estabelecimento_ensino_poi_counts: CensoData;
-  censo_2022_estabelecimento_outras_finalidades_poi_counts: CensoData;
-  censo_2022_estabelecimento_religioso_poi_counts: CensoData;
-  censo_2022_estabelecimento_saude_poi_counts: CensoData;
+  domicilio_coletivo: CensoData,
+  domicilio_particular: CensoData,
+  agro: CensoData,
+  construcao: CensoData,
+  ensino: CensoData,
+  outras_finalidades: CensoData,
+  religioso: CensoData,
+  saude: CensoData,
 }

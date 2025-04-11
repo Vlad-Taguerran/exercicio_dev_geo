@@ -3,14 +3,15 @@ import { useCensoStore } from "@/application/stores/CensoMetric.store";
 import { Modal, Card, CardContent, Typography, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody } from "@mui/material";
 
 const labels: Record<keyof ReturnType<typeof useCensoStore>, string> = {
-  censo_2022_domicilio_coletivo_poi_counts: "Domicílios Coletivos",
-  censo_2022_domicilio_particular_poi_counts: "Domicílios Particulares",
-  censo_2022_estabelecimento_agro_poi_counts: "Estabelecimentos Agropecuários",
-  censo_2022_estabelecimento_construcao_poi_counts: "Estabelecimentos de Construção",
-  censo_2022_estabelecimento_ensino_poi_counts: "Estabelecimentos de Ensino",
-  censo_2022_estabelecimento_outras_finalidades_poi_counts: "Outros Estabelecimentos",
-  censo_2022_estabelecimento_religioso_poi_counts: "Estabelecimentos Religiosos",
-  censo_2022_estabelecimento_saude_poi_counts: "Estabelecimentos de Saúde",
+
+  domicilio_coletivo: "Domicílios Coletivos",
+  domicilio_particular: "Domicílios Particulares",
+  agro: "Estabelecimentos Agropecuários",
+  construcao: "Estabelecimentos de Construção",
+  ensino: "Estabelecimentos de Ensino",
+  outras_finalidades: "Outros Estabelecimentos",
+  religioso: "Estabelecimentos Religiosos",
+  saude: "Estabelecimentos de Saúde",
 };
 
 export default function ModalComponet() {
