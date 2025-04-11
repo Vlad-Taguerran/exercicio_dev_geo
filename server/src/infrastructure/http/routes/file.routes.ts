@@ -13,6 +13,7 @@ const fileRepository =new FileRepository();
 const filecontroller = new FileController(fileRepository,ws,);
 
 filesRouter.post('/process/file',(req,res)=>{filecontroller.processFiles(req,res)});
+//filesRouter.post('/file',(req,res)=>{filecontroller.})
 filesRouter.get('/files',(req,res)=>{filecontroller.get(req,res)});
 filesRouter.get('/file/:filename',(req,res)=>{filecontroller.getFile(req,res)})
 return filesRouter;

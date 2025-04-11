@@ -7,7 +7,8 @@ import path from 'path';
 export class CsvReader{
 
   static async  readCsv<T>(_filePath: string, mapRow: (row: any)=> any,onBatchProcessed: (batch: T[]) => void, batchSize: number = 100 ) : Promise<T[]>{
-     const filepath = path.join(FILES_DIRECTORY,_filePath)
+     const filepath = path.join(FILES_DIRECTORY,_filePath);
+     
     const delimiter = await this.detectTypeSeparator(filepath)
     let batch: any[] = [];
     let lineCount = 0;

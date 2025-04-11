@@ -7,14 +7,15 @@ export interface Estatisticas {
 
 export const calcularEstatisticas = (features: GeoJSON.Feature[]): Estatisticas[] => {
   const campos = [
-    "censo_2022_estabelecimento_outras_finalidades_poi_counts",
-    "censo_2022_domicilio_particular_poi_counts",
-    "censo_2022_estabelecimento_construcao_poi_counts",
-    "censo_2022_estabelecimento_religioso_poi_counts",
-    "censo_2022_estabelecimento_ensino_poi_counts",
-    "censo_2022_estabelecimento_saude_poi_counts",
-    "censo_2022_domicilio_coletivo_poi_counts",
-    "censo_2022_estabelecimento_agro_poi_counts"
+   "agro",
+    "construcao",
+    "domicilio_coletivo",
+    "domicilio_particular",
+    "ensino",
+    "outras_finalidades",
+    "religioso",
+    "saude"
+
   ];
 
   return campos.map(campo => {

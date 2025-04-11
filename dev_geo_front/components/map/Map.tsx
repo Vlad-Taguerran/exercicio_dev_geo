@@ -4,7 +4,7 @@ import { useMapDataProcessing } from "./useMapDataProcessing";
 import { useCensuStore } from "@/application/stores/Census.store";
 import { useEffect, useRef } from "react";
 import { useMapInitialization } from "./useMapInitialization";
-import { Box } from "@mui/material";
+import { Stack } from "@mui/material";
 import { useSSEMarkers } from "./hooks/useSSEMarkers";
 import { findAllAddresAction } from "@/application/actions/LocationAction";
 import { useMarkers } from "@/application/stores/SseMarker.store";
@@ -36,9 +36,9 @@ export const Map: React.FC = () => {
   
   return (
       
-      <Box
+      <Stack
           ref={mapContainerRef}
-          sx={{ width: '100vw', height: '100vh' }}
+          sx={{flex: 1, border: 0, width:'100%', height:'100%'}}
           
       />
       

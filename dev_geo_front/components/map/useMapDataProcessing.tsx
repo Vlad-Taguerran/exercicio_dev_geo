@@ -125,7 +125,7 @@ export function useMapDataProcessing(
                 "+",
                 [
                   "coalesce",
-                  ["get", "censo_2022_domicilio_particular_poi_counts"],
+                  ["get", "domicilio_particular"],
                   0,
                 ],
               ],
@@ -133,7 +133,7 @@ export function useMapDataProcessing(
                 "+",
                 [
                   "coalesce",
-                  ["get", "censo_2022_estabelecimento_agro_poi_counts"],
+                  ["get", "agro"],
                   0,
                 ],
               ],
@@ -141,7 +141,7 @@ export function useMapDataProcessing(
                 "+",
                 [
                   "coalesce",
-                  ["get", "censo_2022_estabelecimento_construcao_poi_counts"],
+                  ["get", "construcao"],
                   0,
                 ],
               ],
@@ -215,7 +215,7 @@ export function useMapDataProcessing(
                 ], // Exemplo de raios/passos
            
               },
-              maxzoom: 100// Controla o nível máximo de zoom onde os clusters ainda existem
+              maxzoom: 24
 
              
             });
@@ -460,8 +460,7 @@ export function useMapDataProcessing(
         "⚠️ Processamento concluído, mas não há dados processados para exibir."
       );
     }
-    // Dependências: Executa quando 'allDataProcessed' se torna true, ou se mapa/ícone/dados
-    // mudarem DEPOIS que 'allDataProcessed' já for true.
+   
   }, [
     allDataProcessed,
     processedData,

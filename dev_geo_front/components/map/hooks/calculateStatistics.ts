@@ -38,7 +38,7 @@ export function calculateStatistics(polygon: GeoJSONFeature, map: Map) {
   function isPoint(geometry: Geometry): geometry is Point {
     return geometry.type === "Point" && "coordinates" in geometry;
   }
-  
+
   const pointsInsidePolygon = allPoints
     .filter((feature) => isPoint(feature.geometry)) // Garante que é um ponto
     .filter((feature) => {
@@ -53,14 +53,17 @@ export function calculateStatistics(polygon: GeoJSONFeature, map: Map) {
 
   // Lista de chaves dos dados do censo que queremos calcular
   const keys = [
-    "censo_2022_estabelecimento_outras_finalidades_poi_counts",
-    "censo_2022_domicilio_particular_poi_counts",
-    "censo_2022_estabelecimento_construcao_poi_counts",
-    "censo_2022_estabelecimento_religioso_poi_counts",
-    "censo_2022_estabelecimento_ensino_poi_counts",
-    "censo_2022_estabelecimento_saude_poi_counts",
-    "censo_2022_domicilio_coletivo_poi_counts",
-    "censo_2022_estabelecimento_agro_poi_counts",
+    "agro",
+    "construcao",
+    "domicilio_coletivo",
+    "domicilio_particular",
+    "ensino",
+    "latitude",
+    "longitude",
+    "outras_finalidades",
+    "religioso",
+    "saude"
+
   ];
 
   const statistics: Record<string, { total: number; sum: number; mean: number; median: number }> = {};
@@ -84,6 +87,5 @@ export function calculateStatistics(polygon: GeoJSONFeature, map: Map) {
   });
   useCensoStore.getState().setMetric(statistics);
   useCensoStore.getState().changeMetricState();
-  console.log(statistics)
   return statistics;
 }

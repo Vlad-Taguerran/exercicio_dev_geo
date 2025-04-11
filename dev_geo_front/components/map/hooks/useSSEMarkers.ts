@@ -16,7 +16,7 @@ export function useSSEMarkers() {
       markersRef.current.forEach((marker) => marker.remove());
       markersRef.current.clear();
       console.log("Store de markers está vazia, limpando mapa.");
-      return; // Sai se não há marcadores para processar
+      return;
    }
 
     markers.forEach((data: IAddressDto) => {

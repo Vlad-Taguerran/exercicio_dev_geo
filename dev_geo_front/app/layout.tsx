@@ -1,9 +1,14 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import React from "react";
+import { NextAppProvider } from '@toolpad/core/nextjs';
+import LinearProgress from '@mui/material/LinearProgress';
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
+import {Home} from '@mui/icons-material'
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -16,9 +21,19 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Teste Geo Code",
-  description: "Teste comlocalização de mapa",
+  description: "Teste com localização de mapa",
 };
-
+const Navi = [
+  {
+    segment: 'home',
+    title: 'Home',
+    icon: <Home/>
+  },{
+    segment:'home/cadastrar/csv',
+    title:'cadastrar Csv',
+    icon: <UploadFileIcon/>
+  }
+]
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -31,7 +46,13 @@ export default function RootLayout({
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
       
-          {children}    
+      <AppRouterCacheProvider options={{ enableCssLayer: true }}>
+      <React.Suspense fallback={<LinearProgress />}>
+        <NextAppProvider navigation={Navi} >
+          {children}
+        </NextAppProvider>
+      </React.Suspense>
+    </AppRouterCacheProvider> 
       </body>
     </html>
   );
