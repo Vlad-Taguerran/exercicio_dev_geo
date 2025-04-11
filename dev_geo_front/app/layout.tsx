@@ -29,7 +29,7 @@ const Navi = [
     title: 'Home',
     icon: <Home/>
   },{
-    segment:'home/cadastrar/csv',
+    segment:'home/cadastro/csv',
     title:'cadastrar Csv',
     icon: <UploadFileIcon/>
   }
